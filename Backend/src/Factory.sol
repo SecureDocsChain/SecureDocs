@@ -6,10 +6,13 @@ import {SecureVaultLogic} from "./SecureVaultLogic.sol";
 
 error Unauthorized();
 error ContractLogicAlreadySet();
+error ProxyAlreadyDeployed();
 
 /**
  * @title Factory
  * @notice Factory contract that deploys Proxy contracts
+ * 
+ * @dev deploy() multiple proxies for an address or 1 proxy per address ???
  */
 contract Factory {
   uint256 private proxiesDeployed;
@@ -31,6 +34,7 @@ contract Factory {
   }
 
   function deploy() external {
+    if (proxies[msg.sender] != address(0)) revert ProxyAlreadyDeployed();
     address proxy = address(new Proxy("", contractLogic));
     SecureVaultLogic(proxy).initialize(msg.sender);
     proxies[msg.sender] = proxy;
