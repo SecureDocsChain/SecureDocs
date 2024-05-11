@@ -33,7 +33,6 @@ contract SecureVaultLogic is ERC721, Ownable {
 
   // Mint a new token with the provided metadata
   function mint(
-    address to,
     uint8 visibility,
     bytes32 documentHash,
     bytes32[] memory keywords,
@@ -48,7 +47,7 @@ contract SecureVaultLogic is ERC721, Ownable {
       documentType: documentType,
       uri: uri
     });
-    _mint(to, ptrTokenId);
+    _mint(msg.sender, ptrTokenId);
     unchecked { ptrTokenId++; }
   }
 
