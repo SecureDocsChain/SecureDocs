@@ -63,6 +63,9 @@ contract TestSecureVault is Test {
       "https://example.com"
     );
 
+    require(SecureVaultLogic(proxyAddress).balanceOf(user1) == 1, "User1 should have 1 token");
+    require(SecureVaultLogic(proxyAddress).ownerOf(1) == user1, "User1 should own token 1");
+
     vm.stopPrank();
   }
 
