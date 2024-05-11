@@ -63,6 +63,14 @@ contract SecureVaultLogic is ERC721, Ownable {
     return metadata[tokenId];
   }
 
+  function name() public pure override returns (string memory) {
+    return "SecureVault";
+  }
+
+  function symbol() public pure override returns (string memory) {
+    return "SV";
+  }
+
   // Get the token URI
   function tokenURI(uint256 tokenId) public view override returns (string memory) {
     // if tokenID does not exist, return empty string
