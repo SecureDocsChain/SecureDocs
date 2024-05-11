@@ -4,7 +4,7 @@ pragma solidity ^0.8.19;
 import {Test, console2} from "forge-std/Test.sol";
 
 import {Proxy} from "../src/Proxy.sol";
-import {SecureVaultLogic, Metadata} from "../src/SecureVaultLogic.sol";
+import {SecureVaultLogic, Metadata, Visibility} from "../src/SecureVaultLogic.sol";
 import {Factory} from "../src/Factory.sol";
 
 contract TestSecureVault is Test {
@@ -38,14 +38,47 @@ contract TestSecureVault is Test {
     factory.setContractLogic(address(logic));
   }
 
-  function testDeployNewSecureVault() public {
+  function testDeployNewSecureVault() public returns (address proxyAddress) {
     vm.startPrank(user1);
 
     factory.deploy();
 
-    address proxyAddress = factory.getProxy(user1);
+    proxyAddress = factory.getProxy(user1);
 
     require(proxyAddress != address(0), "Proxy address should not be address zero");
+
+    vm.stopPrank();
+  }
+
+  function testMintNewTokenToUser1() public {
+    address proxyAddress = testDeployNewSecureVault();
+    
+    vm.startPrank(user1);
+
+    SecureVaultLogic(proxyAddress).mint(
+      uint8(Visibility.Public),
+      keccak256("Test"),
+      new bytes32[](0),
+      "Test",
+      "https://example.com"
+    );
+
+    vm.stopPrank();
+  }
+
+  function testMintNewTokenShouldFailIfNotOwner() public {
+    address proxyAddress = testDeployNewSecureVault();
+    
+    vm.startPrank(user2);
+
+    vm.expectRevert();
+    SecureVaultLogic(proxyAddress).mint(
+      uint8(Visibility.Public),
+      keccak256("Test"),
+      new bytes32[](0),
+      "Test",
+      "https://example.com"
+    );
 
     vm.stopPrank();
   }
