@@ -7,6 +7,11 @@ import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 error Unauthorized();
 error AlreadyInitialized();
 
+enum Visibility {
+  Public,
+  Private
+}
+
 struct Metadata {
   uint8 visibility;
   uint256 timestamp;
@@ -58,7 +63,9 @@ contract SecureVaultLogic is ERC721, Ownable {
     return metadata[tokenId];
   }
 
+  // Get the token URI
   function tokenURI(uint256 tokenId) public view override returns (string memory) {
+    // if tokenID does not exist, return empty string
     return metadata[tokenId].uri;
   }
 
