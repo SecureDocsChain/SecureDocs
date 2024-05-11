@@ -22,12 +22,14 @@ contract SecureVaultLogic is ERC721, Ownable {
 
   mapping(uint256 => Metadata) public metadata;
 
-  constructor(address factory) ERC721("SecureVault", "SV") Ownable(factory) {}
+  constructor() ERC721("SecureVault", "SV") Ownable(msg.sender) {}
 
   // Initialize the contract with the provided parameters
-  function initialize(address initialOwner) external onlyOwner {
+  function initialize(address initialOwner) external {
+    address initializer = _initializer();
+    if (initializer != address(0) && initializer != msg.sender) revert Unauthorized();
     if (initialized == 1) revert AlreadyInitialized();
-    transferOwnership(initialOwner);
+    _transferOwnership(initialOwner);
     initialized = 1;
   }
 
@@ -51,8 +53,18 @@ contract SecureVaultLogic is ERC721, Ownable {
     unchecked { ptrTokenId++; }
   }
 
+  // Get the metadata of a token
+  function getMetadata(uint256 tokenId) external view returns (Metadata memory) {
+    return metadata[tokenId];
+  }
+
   function tokenURI(uint256 tokenId) public view override returns (string memory) {
     return metadata[tokenId].uri;
+  }
+
+  // Get the initializer address
+  function _initializer() internal pure returns (address) {
+    return address(0);
   }
 
   // Override _update to prevent sending tokens to other addresses
