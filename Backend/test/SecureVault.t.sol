@@ -113,4 +113,16 @@ contract TestSecureVault is Test {
 
     vm.stopPrank();
   }
+
+  function testGetName() public {
+    address proxyAddress = testDeployNewSecureVault();
+
+    require(keccak256(bytes(SecureVaultLogic(proxyAddress).name())) == keccak256("SecureVault"), "Name should be 'SecureVault'");
+  }
+
+  function testGetSymbol() public {
+    address proxyAddress = testDeployNewSecureVault();
+
+    require(keccak256(bytes(SecureVaultLogic(proxyAddress).symbol())) == keccak256("SV"), "Symbol should be 'SV'");
+  }
 }
