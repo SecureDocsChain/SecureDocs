@@ -19,6 +19,7 @@ struct Metadata {
   bytes32[] keywords;
   string documentType;
   string uri;
+  // QRCode qrcode; need to know how to implement this
 }
 
 contract SecureVaultLogic is ERC721, Ownable {
@@ -29,7 +30,7 @@ contract SecureVaultLogic is ERC721, Ownable {
 
   constructor() ERC721("SecureVault", "SV") Ownable(msg.sender) {}
 
-  // Initialize the contract with the provided parameters
+  /// @dev Initialize the contract with the provided parameters
   function initialize(address initialOwner) external {
     address initializer = _initializer();
     if (initializer != address(0) && initializer != msg.sender) revert Unauthorized();
@@ -39,7 +40,7 @@ contract SecureVaultLogic is ERC721, Ownable {
     initialized = 1;
   }
 
-  // Mint a new token with the provided metadata
+  /// @dev Mint a new token with the provided metadata
   function mint(
     uint8 visibility,
     bytes32 documentHash,
@@ -59,7 +60,7 @@ contract SecureVaultLogic is ERC721, Ownable {
     unchecked { ptrTokenId++; }
   }
 
-  // Get the metadata of a token
+  /// @dev Get the metadata of a token
   function getMetadata(uint256 tokenId) external view returns (Metadata memory) {
     return metadata[tokenId];
   }
@@ -72,18 +73,18 @@ contract SecureVaultLogic is ERC721, Ownable {
     return "SV";
   }
 
-  // Get the token URI
+  /// @dev Get the token URI
   function tokenURI(uint256 tokenId) public view override returns (string memory) {
     // if tokenID does not exist, return empty string
     return metadata[tokenId].uri;
   }
 
-  // Get the initializer address
+  /// @dev Get the initializer address
   function _initializer() internal pure returns (address) {
     return address(0);
   }
 
-  // Override _update to prevent sending tokens to other addresses
+  /// @dev Override _update to prevent sending tokens to other addresses
   function _update(address to, uint256 tokenId, address auth) internal virtual override returns (address) {
     if (to != address(0) && auth != address(0)) {
       revert Unauthorized();
