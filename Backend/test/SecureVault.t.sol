@@ -86,6 +86,25 @@ contract TestSecureVault is Test {
     vm.stopPrank();
   }
 
+  function testTransferTokenShouldFail() public {
+    address proxyAddress = testDeployNewSecureVault();
+    
+    vm.startPrank(user1);
+
+    SecureVaultLogic(proxyAddress).mint(
+      uint8(Visibility.Public),
+      keccak256("Test"),
+      new bytes32[](0),
+      "Test",
+      "https://example.com"
+    );
+
+    vm.expectRevert();
+    SecureVaultLogic(proxyAddress).transferFrom(user1, user2, 1);
+
+    vm.stopPrank();
+  }
+
   function testGetMetadata() public {
     address proxyAddress = testDeployNewSecureVault();
     
