@@ -33,7 +33,7 @@ export default function Home() {
         </div>
       </main>
       <footer className="w-full py-4 bg-gray-100 text-center text-sm">
-        © 2024 SecureDocs, Inc. Tous droits réservés.
+        © 2024 SecureDocs. All rights reserved.
       </footer>
     </div>
   );
