@@ -23,7 +23,7 @@ struct Metadata {
 
 contract SecureVaultLogic is ERC721, Ownable {
   uint8 initialized;
-  uint256 ptrTokenId = 1;
+  uint256 ptrTokenId;
 
   mapping(uint256 => Metadata) public metadata;
 
@@ -34,6 +34,7 @@ contract SecureVaultLogic is ERC721, Ownable {
     address initializer = _initializer();
     if (initializer != address(0) && initializer != msg.sender) revert Unauthorized();
     if (initialized == 1) revert AlreadyInitialized();
+    ptrTokenId = 1;
     _transferOwnership(initialOwner);
     initialized = 1;
   }
