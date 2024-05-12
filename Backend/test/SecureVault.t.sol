@@ -85,4 +85,32 @@ contract TestSecureVault is Test {
 
     vm.stopPrank();
   }
+
+  function testGetMetadata() public {
+    address proxyAddress = testDeployNewSecureVault();
+    
+    vm.startPrank(user1);
+
+    vm.warp(1000);
+
+    SecureVaultLogic(proxyAddress).mint(
+      uint8(Visibility.Public),
+      keccak256("Test"),
+      new bytes32[](0),
+      "Test",
+      "https://example.com"
+    );
+
+    Metadata memory metadata = SecureVaultLogic(proxyAddress).getMetadata(1);
+
+    require(metadata.visibility == uint8(Visibility.Public), "Visibility should be Public");
+    require(metadata.timestamp > 0, "Timestamp should be greater than 0");
+    require(metadata.timestamp == 1000, "Timestamp should be 1000");
+    require(metadata.documentHash == keccak256("Test"), "Document hash should be keccak256('Test')");
+    require(metadata.keywords.length == 0, "Keywords should be empty");
+    require(keccak256(bytes(metadata.documentType)) == keccak256("Test"), "Document type should be 'Test'");
+    require(keccak256(bytes(metadata.uri)) == keccak256("https://example.com"), "URI should be 'https://example.com'");
+
+    vm.stopPrank();
+  }
 }
