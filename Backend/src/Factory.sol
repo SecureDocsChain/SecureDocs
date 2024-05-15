@@ -18,6 +18,7 @@ contract Factory {
   uint256 private proxiesDeployed;
   address private owner;
   address public contractLogic;
+  address public router;
 
   mapping(address => address) private proxies;
 
@@ -33,10 +34,15 @@ contract Factory {
     contractLogic = _contractLogic;
   }
 
+  function setRouter(address _router) external {
+    if (msg.sender != owner) revert Unauthorized();
+    router = _router;
+  }
+
   function deploy() external {
     if (proxies[msg.sender] != address(0)) revert ProxyAlreadyDeployed();
     address proxy = address(new Proxy("", contractLogic));
-    SecureVaultLogic(proxy).initialize(msg.sender);
+    SecureVaultLogic(proxy).initialize(msg.sender, router);
     proxies[msg.sender] = proxy;
     unchecked { proxiesDeployed++; }
     emit Deployed(proxy);
