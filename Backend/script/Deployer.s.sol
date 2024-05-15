@@ -10,6 +10,8 @@ contract Deployer is Script {
   SecureVaultLogic internal logic;
   Factory internal factory;
 
+  address functionRouterPolygonAmoy = 0xC22a79eBA640940ABB6dF0f7982cc119578E11De;
+
   function setUp() public {}
 
   function run() public {
@@ -19,6 +21,7 @@ contract Deployer is Script {
     factory = new Factory();
     logic = new SecureVaultLogic();
     factory.setContractLogic(address(logic));
+    factory.setRouter(functionRouterPolygonAmoy);
 
     vm.stopBroadcast();
   }
