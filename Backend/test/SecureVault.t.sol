@@ -4,7 +4,7 @@ pragma solidity ^0.8.19;
 import {Test, console2} from "forge-std/Test.sol";
 
 import {Proxy} from "../src/Proxy.sol";
-import {SecureVaultLogic, Metadata, Visibility} from "../src/SecureVaultLogic.sol";
+import "../src/SecureVaultLogic.sol";
 import {Factory} from "../src/Factory.sol";
 
 contract TestSecureVault is Test {
