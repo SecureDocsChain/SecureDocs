@@ -1,6 +1,14 @@
 name: test
 
-on: workflow_dispatch
+on: 
+  push:
+    branches:
+      - main
+      - Dev
+  pull_request:
+    branches:
+      - main
+      - Dev
 
 env:
   FOUNDRY_PROFILE: ci
@@ -12,6 +20,9 @@ jobs:
 
     name: Foundry project
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./Backend
     steps:
       - uses: actions/checkout@v4
         with:
@@ -30,5 +41,10 @@ jobs:
 
       - name: Run Forge tests
         run: |
-          forge test -vvv
+          forge test --gas-report
         id: test
+      
+      - name: Run Forge coverage
+        run: |
+          forge coverage
+        id: coverage

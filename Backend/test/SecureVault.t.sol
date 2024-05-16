@@ -1,61 +1,48 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.19;
+pragma solidity 0.8.25;
 
 import {Test, console2} from "forge-std/Test.sol";
-
-import {Proxy} from "../src/Proxy.sol";
-import {SecureVaultLogic, Metadata, Visibility} from "../src/SecureVaultLogic.sol";
-import {Factory} from "../src/Factory.sol";
+import {SecureVault, Metadata, Visibility} from "../src/SecureVault.sol";
+import {SecureVaultFactory} from "../src/SecureVaultFactory.sol";
 
 contract TestSecureVault is Test {
-  Proxy internal proxy;
-  SecureVaultLogic internal logic;
-  Factory internal factory;
+  SecureVault internal logic;
+  SecureVaultFactory internal factory;
 
-  uint256 internal ownerPrivateKey;
-  address internal owner;
-  uint256 internal user1PrivateKey;
-  address internal user1;
-  uint256 internal user2PrivateKey;
-  address internal user2;
-  uint256 internal user3PrivateKey;
-  address internal user3;
+  
+  address private owner = makeAddr("owner");
+  address private user1 = makeAddr("user1");
+  address private user2 = makeAddr("user2");
+  address private user3 = makeAddr("user3");
 
   function setUp() public {
-    ownerPrivateKey = 0xA11CE;
-    owner = vm.addr(ownerPrivateKey);
-    user1PrivateKey = 0xB0B;
-    user1 = vm.addr(user1PrivateKey);
-    user2PrivateKey = 0xFE55E;
-    user2 = vm.addr(user2PrivateKey);
-    user3PrivateKey = 0xD1C;
-    user3 = vm.addr(user3PrivateKey);
-
     vm.startPrank(owner);
 
-    factory = new Factory();
-    logic = new SecureVaultLogic();
-    factory.setContractLogic(address(logic));
+    factory = new SecureVaultFactory();
+
+    vm.stopPrank();
   }
 
-  function testDeployNewSecureVault() public returns (address proxyAddress) {
+  function testDeployNewSecureVault() public returns (address secureVaultAddress) {
     vm.startPrank(user1);
 
     factory.deploy();
 
-    proxyAddress = factory.getProxy(user1);
+    secureVaultAddress = factory.getSecureVault(user1);
 
-    require(proxyAddress != address(0), "Proxy address should not be address zero");
+    require(secureVaultAddress != address(0), "SecureVault address should not be address zero");
+    require(SecureVault(secureVaultAddress).owner() == user1, "SecureVault owner should be user1");
+    require(SecureVault(secureVaultAddress).ptrTokenId() == 1, "SecureVault ptrTokenId should be 1");
 
     vm.stopPrank();
   }
 
   function testMintNewTokenToUser1() public {
-    address proxyAddress = testDeployNewSecureVault();
+    address secureVaultAddress = testDeployNewSecureVault();
     
     vm.startPrank(user1);
 
-    SecureVaultLogic(proxyAddress).mint(
+    SecureVault(secureVaultAddress).mint(
       uint8(Visibility.Public),
       keccak256("Test"),
       new bytes32[](0),
@@ -63,19 +50,30 @@ contract TestSecureVault is Test {
       "https://example.com"
     );
 
-    require(SecureVaultLogic(proxyAddress).balanceOf(user1) == 1, "User1 should have 1 token");
-    require(SecureVaultLogic(proxyAddress).ownerOf(1) == user1, "User1 should own token 1");
+    require(SecureVault(secureVaultAddress).balanceOf(user1) == 1, "User1 should have 1 token");
+    require(SecureVault(secureVaultAddress).ownerOf(1) == user1, "User1 should own token 1");
+    require(SecureVault(secureVaultAddress).ptrTokenId() == 2, "SecureVault ptrTokenId should be 2");
+
+    vm.stopPrank();
+  }
+
+  function testInitializeShouldFailIfAlreadyInitialized() public {
+    address secureVaultAddress = testDeployNewSecureVault();
+    vm.startPrank(user1);
+
+    vm.expectRevert();
+    SecureVault(secureVaultAddress).initialize(user1);
 
     vm.stopPrank();
   }
 
   function testMintNewTokenShouldFailIfNotOwner() public {
-    address proxyAddress = testDeployNewSecureVault();
+    address secureVaultAddress = testDeployNewSecureVault();
     
     vm.startPrank(user2);
 
     vm.expectRevert();
-    SecureVaultLogic(proxyAddress).mint(
+    SecureVault(secureVaultAddress).mint(
       uint8(Visibility.Public),
       keccak256("Test"),
       new bytes32[](0),
@@ -87,11 +85,11 @@ contract TestSecureVault is Test {
   }
 
   function testTransferTokenShouldFail() public {
-    address proxyAddress = testDeployNewSecureVault();
+    address secureVaultAddress = testDeployNewSecureVault();
     
     vm.startPrank(user1);
 
-    SecureVaultLogic(proxyAddress).mint(
+    SecureVault(secureVaultAddress).mint(
       uint8(Visibility.Public),
       keccak256("Test"),
       new bytes32[](0),
@@ -100,19 +98,31 @@ contract TestSecureVault is Test {
     );
 
     vm.expectRevert();
-    SecureVaultLogic(proxyAddress).transferFrom(user1, user2, 1);
+    SecureVault(secureVaultAddress).transferFrom(user1, user2, 1);
+
+    vm.stopPrank();
+  }
+
+  function testDeployTwiceForTheSameUserShouldFail() public {
+    vm.startPrank(user1);
+
+    factory.deploy();
+
+
+    vm.expectRevert();
+    factory.deploy();
 
     vm.stopPrank();
   }
 
   function testGetMetadata() public {
-    address proxyAddress = testDeployNewSecureVault();
+    address secureVaultAddress = testDeployNewSecureVault();
     
     vm.startPrank(user1);
 
     vm.warp(1000);
 
-    SecureVaultLogic(proxyAddress).mint(
+    SecureVault(secureVaultAddress).mint(
       uint8(Visibility.Public),
       keccak256("Test"),
       new bytes32[](0),
@@ -120,7 +130,7 @@ contract TestSecureVault is Test {
       "https://example.com"
     );
 
-    Metadata memory metadata = SecureVaultLogic(proxyAddress).getMetadata(1);
+    Metadata memory metadata = SecureVault(secureVaultAddress).getMetadata(1);
 
     require(metadata.visibility == uint8(Visibility.Public), "Visibility should be Public");
     require(metadata.timestamp > 0, "Timestamp should be greater than 0");
@@ -134,14 +144,14 @@ contract TestSecureVault is Test {
   }
 
   function testGetName() public {
-    address proxyAddress = testDeployNewSecureVault();
+    address secureVaultAddress = testDeployNewSecureVault();
 
-    require(keccak256(bytes(SecureVaultLogic(proxyAddress).name())) == keccak256("SecureVault"), "Name should be 'SecureVault'");
+    require(keccak256(bytes(SecureVault(secureVaultAddress).name())) == keccak256("SecureVault"), "Name should be 'SecureVault'");
   }
 
   function testGetSymbol() public {
-    address proxyAddress = testDeployNewSecureVault();
+    address secureVaultAddress = testDeployNewSecureVault();
 
-    require(keccak256(bytes(SecureVaultLogic(proxyAddress).symbol())) == keccak256("SV"), "Symbol should be 'SV'");
+    require(keccak256(bytes(SecureVault(secureVaultAddress).symbol())) == keccak256("SV"), "Symbol should be 'SV'");
   }
 }

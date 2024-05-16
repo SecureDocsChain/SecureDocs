@@ -1,8 +1,10 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.19;
+pragma solidity 0.8.25;
 
-import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
-import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import {ERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
+import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
+
 
 error Unauthorized();
 error AlreadyInitialized();
@@ -22,23 +24,24 @@ struct Metadata {
   // QRCode qrcode; need to know how to implement this
 }
 
-contract SecureVaultLogic is ERC721, Ownable {
-  uint8 initialized;
-  uint256 ptrTokenId;
+contract SecureVault is ERC721Upgradeable, OwnableUpgradeable {
+  uint256 public ptrTokenId;
 
   mapping(uint256 => Metadata) public metadata;
 
-  constructor() ERC721("SecureVault", "SV") Ownable(msg.sender) {}
-
-  /// @dev Initialize the contract with the provided parameters
-  function initialize(address initialOwner) external {
-    address initializer = _initializer();
-    if (initializer != address(0) && initializer != msg.sender) revert Unauthorized();
-    if (initialized == 1) revert AlreadyInitialized();
-    ptrTokenId = 1;
-    _transferOwnership(initialOwner);
-    initialized = 1;
+  /// @custom:oz-upgrades-unsafe-allow constructor
+  constructor() {
+      _disableInitializers();
   }
+
+  // @dev Initialize the contract with the provided parameters
+  function initialize(
+        address initialOwner
+    ) external initializer {
+        __ERC721_init("SecureVault", "SV");
+        ptrTokenId = 1;
+        _transferOwnership(initialOwner);
+    }
 
   /// @dev Mint a new token with the provided metadata
   function mint(
@@ -77,11 +80,6 @@ contract SecureVaultLogic is ERC721, Ownable {
   function tokenURI(uint256 tokenId) public view override returns (string memory) {
     // if tokenID does not exist, return empty string
     return metadata[tokenId].uri;
-  }
-
-  /// @dev Get the initializer address
-  function _initializer() internal pure returns (address) {
-    return address(0);
   }
 
   /// @dev Override _update to prevent sending tokens to other addresses
