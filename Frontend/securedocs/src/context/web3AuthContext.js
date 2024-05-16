@@ -3,7 +3,7 @@ import { Web3Auth } from "@web3auth/modal";
 import { CHAIN_NAMESPACES, WEB3AUTH_NETWORK } from "@web3auth/base";
 import { EthereumPrivateKeyProvider } from "@web3auth/ethereum-provider";
 import { ethers } from "ethers";
-import { useRouter } from "next/router";
+// import { useRouter } from "next/router";
 
 const Web3AuthContext = createContext();
 
@@ -33,6 +33,8 @@ const web3auth = new Web3Auth({
 export const Web3AuthProvider = ({ children }) => {
   const [provider, setProvider] = useState(null);
   const [loggedIn, setLoggedIn] = useState(false);
+  const [user, setUser] = useState(null);
+  // const Router = useRouter();
 
   useEffect(() => {
     const init = async () => {
@@ -49,6 +51,14 @@ export const Web3AuthProvider = ({ children }) => {
     init();
   }, []);
 
+  useEffect(() => {
+    if (loggedIn) {
+      getUserInfo().then((user) => setUser(user));
+    } else {
+      setUser(null);
+    }
+  }, [loggedIn]);
+
   const connect = async () => {
     try {
       await web3auth.connect();
@@ -57,7 +67,7 @@ export const Web3AuthProvider = ({ children }) => {
       }
       if (web3auth.connected) {
         setLoggedIn(true);
-        Router.push("/dashboard"); // Redirige vers le tableau de bord après la connexion
+        // Router.push("/dashboard"); // Redirige vers le tableau de bord après la connexion
       }
     } catch (error) {
       console.error(error);
@@ -69,7 +79,7 @@ export const Web3AuthProvider = ({ children }) => {
       await web3auth.logout();
       setProvider(null);
       setLoggedIn(false);
-      Router.push("/"); // Redirige vers la page d'accueil après la déconnexion
+      // Router.push("/"); // Redirige vers la page d'accueil après la déconnexion
     } catch (error) {
       console.error(error);
     }
@@ -80,10 +90,17 @@ export const Web3AuthProvider = ({ children }) => {
     return user;
   };
 
+  const props = {
+    provider,
+    loggedIn,
+    user,
+    connect,
+    disconnect,
+    getUserInfo,
+  };
+
   return (
-    <Web3AuthContext.Provider
-      value={{ provider, loggedIn, connect, disconnect, getUserInfo }}
-    >
+    <Web3AuthContext.Provider value={props}>
       {children}
     </Web3AuthContext.Provider>
   );
