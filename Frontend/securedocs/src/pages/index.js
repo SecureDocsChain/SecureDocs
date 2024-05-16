@@ -1,89 +1,11 @@
 import React, { useEffect, useState } from "react";
 import "../app/styles/globals.css";
 import { ethers } from "ethers";
-import { useRouter } from 'next/router';
 
-import { CHAIN_NAMESPACES, WEB3AUTH_NETWORK } from "@web3auth/base";
-import { EthereumPrivateKeyProvider } from "@web3auth/ethereum-provider";
-import { Web3Auth } from "@web3auth/modal";
-
-const clientId = process.env.NEXT_PUBLIC_WEB3AUTH_CLIENT_ID;
-
-const chainConfig = {
-  chainId: "0x13882", // Utiliser 0x1 pour Mainnet
-  rpcTarget: "https://rpc-amoy.polygon.technology",
-  chainNamespace: CHAIN_NAMESPACES.EIP155,
-  displayName: "Polygon Amoy",
-  blockExplorerUrl: "https://amoy.polygonscan.com/",
-  ticker: "MATIC",
-  tickerName: "Polygon",
-  logo: "https://images.toruswallet.io/eth.svg",
-};
-
-const privateKeyProvider = new EthereumPrivateKeyProvider({
-  config: { chainConfig: chainConfig },
-});
-
-const web3auth = new Web3Auth({
-  clientId,
-  web3AuthNetwork: WEB3AUTH_NETWORK.SAPPHIRE_DEVNET,
-  privateKeyProvider: privateKeyProvider,
-});
+import { useWeb3Auth } from "../context/web3AuthContext";
 
 export default function Home() {
-  const [provider, setProvider] = useState(null);
-  const [loggedIn, setLoggedIn] = useState(false);
-  const router = useRouter();
-
-  useEffect(() => {
-    const init = async () => {
-      try {
-        await web3auth.initModal();
-        setProvider(web3auth.provider);
-
-        if (web3auth.connected) {
-          setLoggedIn(true);
-        }
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
-    init();
-  }, []);
-
-  const handleCreateAccount = async () => {
-    try {
-      const provider = await web3auth.connect();
-      setProvider(provider);
-      setLoggedIn(true);
-      router.push('/dashboard'); // Redirige vers la page de tableau de bord après la connexion
-    } catch (error) {
-      console.error("Error creating account: ", error);
-    }
-  };
-
-  const handleSignIn = async () => {
-    try {
-      const provider = await web3auth.connect();
-      setProvider(provider);
-      setLoggedIn(true);
-      router.push('/dashboard'); // Redirige vers la page de tableau de bord après la connexion
-    } catch (error) {
-      console.error("Error signing in: ", error);
-    }
-  };
-
-  const handleLogout = async () => {
-    try {
-      await web3auth.logout();
-      setProvider(null);
-      setLoggedIn(false);
-      router.push('/'); // Redirige vers la page d'accueil après la déconnexion
-    } catch (error) {
-      console.error("Error logging out: ", error);
-    }
-  };
+  const { connect, disconnect, loggedIn } = useWeb3Auth();
 
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-r from-gray-300 to-gray-200">
@@ -95,9 +17,7 @@ export default function Home() {
               alt="Secure Logo"
               className="h-12 rounded-lg"
             />
-            <span className="ml-3 text-xl font-semibold">
-              SecureDocs
-            </span>
+            <span className="ml-3 text-xl font-semibold">SecureDocs</span>
           </div>
           <div className="flex items-center"></div>
         </div>
@@ -107,12 +27,13 @@ export default function Home() {
           Join Hundreds of Millions <br /> Securing Their Documents
         </h1>
         <p className="px-6 mb-8 text-lg text-center md:text-xl">
-          Revolutionize how businesses of all sizes secure, manage, and verify their documents using blockchain technology.
+          Revolutionize how businesses of all sizes secure, manage, and verify
+          their documents using blockchain technology.
         </p>
         <div className="space-x-5">
           {loggedIn ? (
             <button
-              onClick={handleLogout}
+              onClick={disconnect}
               className="px-8 py-3 text-lg font-bold text-white bg-red-600 rounded-md hover:bg-red-800"
             >
               Logout
@@ -120,13 +41,13 @@ export default function Home() {
           ) : (
             <>
               <button
-                onClick={handleCreateAccount}
+                onClick={connect}
                 className="px-8 py-3 text-lg font-bold text-white bg-blue-600 rounded-md hover:bg-blue-800"
               >
                 Create an Account
               </button>
               <button
-                onClick={handleSignIn}
+                onClick={connect}
                 className="px-8 py-3 text-lg font-bold text-white bg-gray-600 rounded-md hover:bg-blue-800"
               >
                 Login

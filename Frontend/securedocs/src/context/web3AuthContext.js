@@ -3,11 +3,11 @@ import { Web3Auth } from "@web3auth/modal";
 import { CHAIN_NAMESPACES, WEB3AUTH_NETWORK } from "@web3auth/base";
 import { EthereumPrivateKeyProvider } from "@web3auth/ethereum-provider";
 import { ethers } from "ethers";
+import { useRouter } from "next/router";
 
 const Web3AuthContext = createContext();
 
-const clientId =
-  "BLVu3QO6D_0B1gwr9bLRtZSxuhVYDr8FhXIjb3Xmss-4ncqqPXK0Bu4tpLCs9x9ZRncLXWxL-tQZMdiAJ6Kc2U4";
+const clientId = process.env.NEXT_PUBLIC_WEB3AUTH_CLIENT_ID;
 
 const chainConfig = {
   chainId: "0x13882", // Please use 0x1 for Mainnet
@@ -34,10 +34,7 @@ export const Web3AuthProvider = ({ children }) => {
   const [provider, setProvider] = useState(null);
   const [loggedIn, setLoggedIn] = useState(false);
 
-  console.log("Web3AuthProvider");
-
   useEffect(() => {
-    console.log("Web3AuthProvider init");
     const init = async () => {
       try {
         await web3auth.initModal();
@@ -60,6 +57,7 @@ export const Web3AuthProvider = ({ children }) => {
       }
       if (web3auth.connected) {
         setLoggedIn(true);
+        Router.push("/dashboard"); // Redirige vers le tableau de bord après la connexion
       }
     } catch (error) {
       console.error(error);
@@ -71,6 +69,7 @@ export const Web3AuthProvider = ({ children }) => {
       await web3auth.logout();
       setProvider(null);
       setLoggedIn(false);
+      Router.push("/"); // Redirige vers la page d'accueil après la déconnexion
     } catch (error) {
       console.error(error);
     }
