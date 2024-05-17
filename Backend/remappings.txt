@@ -1,3 +1,4 @@
 @openzeppelin/contracts/=lib/openzeppelin-contracts-upgradeable/lib/openzeppelin-contracts/contracts/
 @openzeppelin/contracts-upgradeable/=lib/openzeppelin-contracts-upgradeable/contracts/
-ccip/=lib/ccip/contracts/
+@chainlink/contracts-ccip/=node_modules/@chainlink/contracts-ccip
+@chainlink/contracts/=lib/chainlink/contracts/
