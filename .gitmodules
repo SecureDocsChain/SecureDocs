@@ -13,3 +13,6 @@
 [submodule "Backend/lib/openzeppelin-contracts-upgradeable"]
 	path = Backend/lib/openzeppelin-contracts-upgradeable
 	url = https://github.com/OpenZeppelin/openzeppelin-contracts-upgradeable
+[submodule "Backend/lib/ccip"]
+	path = Backend/lib/ccip
+	url = https://github.com/smartcontractkit/ccip
