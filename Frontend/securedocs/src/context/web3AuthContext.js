@@ -3,7 +3,7 @@ import { Web3Auth } from "@web3auth/modal";
 import { CHAIN_NAMESPACES, WEB3AUTH_NETWORK } from "@web3auth/base";
 import { EthereumPrivateKeyProvider } from "@web3auth/ethereum-provider";
 import { ethers } from "ethers";
-// import { useRouter } from "next/router";
+import { useRouter } from 'next/router';
 
 const Web3AuthContext = createContext();
 
@@ -34,14 +34,20 @@ export const Web3AuthProvider = ({ children }) => {
   const [provider, setProvider] = useState(null);
   const [loggedIn, setLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
-  // const Router = useRouter();
+  const [address, setAddress] = useState(null);
+  const router = useRouter(); // Utiliser useRouter pour la redirection
 
   useEffect(() => {
     const init = async () => {
       try {
         await web3auth.initModal();
         if (web3auth.provider) {
-          setProvider(new ethers.providers.Web3Provider(web3auth.provider));
+          const ethersProvider = new ethers.providers.Web3Provider(web3auth.provider);
+          setProvider(ethersProvider);
+          const signer = ethersProvider.getSigner();
+          const userAddress = await signer.getAddress();
+          setAddress(userAddress);
+          setLoggedIn(true);
         }
       } catch (error) {
         console.error(error);
@@ -63,11 +69,13 @@ export const Web3AuthProvider = ({ children }) => {
     try {
       await web3auth.connect();
       if (web3auth.provider) {
-        setProvider(new ethers.providers.Web3Provider(web3auth.provider));
-      }
-      if (web3auth.connected) {
+        const ethersProvider = new ethers.providers.Web3Provider(web3auth.provider);
+        setProvider(ethersProvider);
+        const signer = ethersProvider.getSigner();
+        const userAddress = await signer.getAddress();
+        setAddress(userAddress);
         setLoggedIn(true);
-        // Router.push("/dashboard"); // Redirige vers le tableau de bord après la connexion
+        router.push('/account'); // Rediriger après connexion
       }
     } catch (error) {
       console.error(error);
@@ -79,7 +87,8 @@ export const Web3AuthProvider = ({ children }) => {
       await web3auth.logout();
       setProvider(null);
       setLoggedIn(false);
-      // Router.push("/"); // Redirige vers la page d'accueil après la déconnexion
+      setAddress(null);
+      router.push('/'); // Rediriger après déconnexion
     } catch (error) {
       console.error(error);
     }
@@ -94,6 +103,7 @@ export const Web3AuthProvider = ({ children }) => {
     provider,
     loggedIn,
     user,
+    address,
     connect,
     disconnect,
     getUserInfo,

@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "aws4": "^1.12.0",
+    "formidable": "^3.5.1",
+    "fs": "^0.0.1-security",
+    "mongoose": "^8.4.0"
+  }
+}
