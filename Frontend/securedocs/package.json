@@ -12,8 +12,13 @@
     "@web3auth/base": "^8.4.1",
     "@web3auth/ethereum-provider": "^8.4.1",
     "@web3auth/modal": "^8.4.1",
+    "axios": "^1.7.0",
+    "crypto": "^1.0.1",
     "dotenv": "^16.4.5",
     "ethers": "5.7",
+    "formidable": "^3.5.1",
+    "fs": "^0.0.1-security",
+    "mongoose": "^8.4.0",
     "next": "^14.2.3",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
