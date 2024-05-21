@@ -34,6 +34,7 @@ export const Web3AuthProvider = ({ children }) => {
   const [provider, setProvider] = useState(null);
   const [loggedIn, setLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
+  const [address, setAddress] = useState(null);
   // const Router = useRouter();
 
   useEffect(() => {
@@ -54,8 +55,10 @@ export const Web3AuthProvider = ({ children }) => {
   useEffect(() => {
     if (loggedIn) {
       getUserInfo().then((user) => setUser(user));
+      getAccounts().then((address) => setAddress(address));
     } else {
       setUser(null);
+      setAddress(null);
     }
   }, [loggedIn]);
 
@@ -90,10 +93,20 @@ export const Web3AuthProvider = ({ children }) => {
     return user;
   };
 
+  const getAccounts = async () => {
+    if (!provider) {
+      return;
+    }
+    const signer = provider.getSigner();
+    const address = await signer.getAddress();
+    return address;
+  };
+
   const props = {
     provider,
     loggedIn,
     user,
+    address,
     connect,
     disconnect,
     getUserInfo,
