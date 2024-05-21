@@ -3,7 +3,7 @@ import { useWeb3Auth } from '../context/web3AuthContext.js';
 
 export default function Upload() {
   const [file, setFile] = useState(null);
-  const { address } = useWeb3Auth(); // Récupérer l'adresse depuis le contexte
+  const { address, email } = useWeb3Auth(); // Récupérer l'adresse et l'email depuis le contexte
 
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
@@ -19,6 +19,9 @@ export default function Upload() {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('userId', address); // Ajouter userId au formData
+    formData.append('email', email); // Ajouter email au formData
+
+    console.log('FormData content:', { address, email }); // Log des données
 
     try {
       const res = await fetch('/api/upload', {

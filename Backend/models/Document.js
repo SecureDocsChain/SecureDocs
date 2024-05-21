@@ -6,6 +6,10 @@ const DocumentSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  email: {
+    type: String,
+    required: true
+  },
   fileName: {
     type: String,
     required: true

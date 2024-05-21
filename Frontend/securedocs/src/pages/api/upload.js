@@ -41,8 +41,13 @@ export default async function handler(req, res) {
       try {
         const fileContent = fs.readFileSync(filePath);
         const hash = crypto.createHash('sha256').update(fileContent).digest('hex');
-
+        let email = fields.email;
         let userId = fields.userId;
+
+        if (Array.isArray(email)) {
+          email = email[0]; // Prend le premier élément si c'est un tableau
+        }
+
         if (Array.isArray(userId)) {
           userId = userId[0]; // Prend le premier élément si c'est un tableau
         }
@@ -51,6 +56,7 @@ export default async function handler(req, res) {
 
         const document = new Document({
           userId,
+          email,
           fileName: file.originalFilename,
           fileData: fileContent,
           hash,
