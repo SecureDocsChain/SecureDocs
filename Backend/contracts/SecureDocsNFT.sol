@@ -7,6 +7,10 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 contract SecureDocsNFT is ERC721, Ownable {
     uint256 public tokenCounter;
 
+    constructor(address initialOwner) ERC721("SecureDocsNFT", "SDNFT") Ownable(initialOwner) {
+        tokenCounter = 0;
+    }
+
     struct Document {
         address notary;
         address user;
@@ -21,9 +25,7 @@ contract SecureDocsNFT is ERC721, Ownable {
     event NotaryAdded(address indexed notary);
     event NotaryRemoved(address indexed notary);
 
-    constructor() ERC721("SecureDocsNFT", "SDNFT") {
-        tokenCounter = 0;
-    }
+    
 
     modifier onlyNotary() {
         require(notaryWhitelist[msg.sender], "Only authorized notaries can perform this action");
