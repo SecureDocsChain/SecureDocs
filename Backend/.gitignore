@@ -11,7 +11,7 @@ out/
 docs/
 
 # node_modules
-# node_modules/
+node_modules/
 
 # Dotenv file
 .env
