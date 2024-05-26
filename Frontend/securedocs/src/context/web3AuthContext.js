@@ -3,7 +3,8 @@ import { Web3Auth } from "@web3auth/modal";
 import { CHAIN_NAMESPACES, WEB3AUTH_NETWORK } from "@web3auth/base";
 import { EthereumPrivateKeyProvider } from "@web3auth/ethereum-provider";
 import { ethers } from "ethers";
-// import { useRouter } from "next/router";
+import { useRouter } from 'next/router';
+import axios from 'axios';
 
 const Web3AuthContext = createContext();
 
@@ -20,54 +21,84 @@ const chainConfig = {
   logo: "https://images.toruswallet.io/eth.svg",
 };
 
-const privateKeyProvider = new EthereumPrivateKeyProvider({
-  config: { chainConfig: chainConfig },
-});
-
-const web3auth = new Web3Auth({
-  clientId,
-  web3AuthNetwork: WEB3AUTH_NETWORK.SAPPHIRE_DEVNET,
-  privateKeyProvider: privateKeyProvider,
-});
-
 export const Web3AuthProvider = ({ children }) => {
+  const [web3auth, setWeb3Auth] = useState(null);
   const [provider, setProvider] = useState(null);
   const [loggedIn, setLoggedIn] = useState(false);
-  const [user, setUser] = useState(null);
-  // const Router = useRouter();
+  const [address, setAddress] = useState(null);
+  const [email, setEmail] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
     const init = async () => {
       try {
-        await web3auth.initModal();
-        if (web3auth.provider) {
-          setProvider(new ethers.providers.Web3Provider(web3auth.provider));
+        const web3authInstance = new Web3Auth({
+          clientId,
+          chainConfig,
+          web3AuthNetwork: WEB3AUTH_NETWORK.SAPPHIRE_DEVNET,
+          privateKeyProvider: new EthereumPrivateKeyProvider({ config: { chainConfig } }),
+        });
+        await web3authInstance.initModal();
+        setWeb3Auth(web3authInstance);
+
+        if (web3authInstance.provider) {
+          const ethersProvider = new ethers.providers.Web3Provider(web3authInstance.provider);
+          setProvider(ethersProvider);
+          const signer = ethersProvider.getSigner();
+          const userAddress = await signer.getAddress();
+          const userInfo = await web3authInstance.getUserInfo();
+          const userEmail = userInfo.email;
+          setAddress(userAddress);
+          setEmail(userEmail);
+          setLoggedIn(true);
+
+          // Enregistrer l'utilisateur dans la BDD
+          await registerUser(userAddress, userEmail);
         }
       } catch (error) {
         console.error(error);
+      } finally {
+        setLoading(false);
       }
     };
 
     init();
   }, []);
 
-  useEffect(() => {
-    if (loggedIn) {
-      getUserInfo().then((user) => setUser(user));
-    } else {
-      setUser(null);
+  const registerUser = async (userAddress, email) => {
+    try {
+      await axios.post('/api/register', {
+        wallet: userAddress,
+        email: email,
+      });
+    } catch (error) {
+      console.error("Error registering user:", error);
     }
-  }, [loggedIn]);
+  };
 
   const connect = async () => {
     try {
-      await web3auth.connect();
-      if (web3auth.provider) {
-        setProvider(new ethers.providers.Web3Provider(web3auth.provider));
+      if (!web3auth) {
+        console.error("Web3Auth is not initialized");
+        return;
       }
-      if (web3auth.connected) {
+      await web3auth.connect();
+
+      if (web3auth.provider) {
+        const ethersProvider = new ethers.providers.Web3Provider(web3auth.provider);
+        setProvider(ethersProvider);
+        const signer = ethersProvider.getSigner();
+        const userAddress = await signer.getAddress();
+        const userInfo = await web3auth.getUserInfo();
+        const userEmail = userInfo.email;
+        setAddress(userAddress);
+        setEmail(userEmail);
         setLoggedIn(true);
-        // Router.push("/dashboard"); // Redirige vers le tableau de bord après la connexion
+
+        // Enregistrer l'utilisateur dans la BDD
+        await registerUser(userAddress, userEmail);
+        router.push('/account'); // Rediriger après connexion
       }
     } catch (error) {
       console.error(error);
@@ -76,27 +107,29 @@ export const Web3AuthProvider = ({ children }) => {
 
   const disconnect = async () => {
     try {
+      if (!web3auth) {
+        console.error("Web3Auth is not initialized");
+        return;
+      }
       await web3auth.logout();
       setProvider(null);
       setLoggedIn(false);
-      // Router.push("/"); // Redirige vers la page d'accueil après la déconnexion
+      setAddress(null);
+      setEmail(null);
+      router.push('/'); // Rediriger après déconnexion
     } catch (error) {
       console.error(error);
     }
   };
 
-  const getUserInfo = async () => {
-    const user = await web3auth.getUserInfo();
-    return user;
-  };
-
   const props = {
     provider,
     loggedIn,
-    user,
+    address,
+    email, // Assurez-vous que l'email est inclus dans les props
     connect,
     disconnect,
-    getUserInfo,
+    loading,
   };
 
   return (
