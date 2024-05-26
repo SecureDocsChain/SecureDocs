@@ -21,7 +21,6 @@ struct Metadata {
   bytes32[] keywords;
   string documentType;
   string uri;
-  // QRCode qrcode; need to know how to implement this
 }
 
 contract SecureVault is ERC721Upgradeable, OwnableUpgradeable {
@@ -31,17 +30,17 @@ contract SecureVault is ERC721Upgradeable, OwnableUpgradeable {
 
   /// @custom:oz-upgrades-unsafe-allow constructor
   constructor() {
-      _disableInitializers();
+    _disableInitializers();
   }
 
   // @dev Initialize the contract with the provided parameters
   function initialize(
-        address initialOwner
-    ) external initializer {
-        __ERC721_init("SecureVault", "SV");
-        ptrTokenId = 1;
-        _transferOwnership(initialOwner);
-    }
+    address initialOwner
+  ) external initializer {
+    __ERC721_init("SecureVault", "SV");
+    ptrTokenId = 1;
+    _transferOwnership(initialOwner);
+  }
 
   /// @dev Mint a new token with the provided metadata
   function mint(
