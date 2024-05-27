@@ -16,9 +16,7 @@ import {
 
 /**
  * @title SecureVaultFactory
- * @notice SecureVaultFactory contract that deploys Proxy contracts
- * 
- * @dev deploy() multiple proxies for an address or 1 proxy per address ???
+ * @notice The SecureVaultFactory contract
  */
 contract SecureVaultFactory is Ownable {
   address private immutable _secureVaultTemplateAddress;
@@ -33,6 +31,10 @@ contract SecureVaultFactory is Ownable {
     _secureVaultTemplateAddress = address(new SecureVault());
   }
 
+  /**
+   * @notice Deploy a new SecureVault contract
+   * @param owner The owner of the SecureVault contract
+   */
   function deploy(address owner) public {
     if (_ownersSecureVaults[owner] != address(0)) revert SecureVaultAlreadyDeployed();
     address clone = Clones.clone(_secureVaultTemplateAddress);
@@ -44,10 +46,20 @@ contract SecureVaultFactory is Ownable {
     emit Deployed(clone);
   }
 
+  /**
+   * @notice Get the SecureVault contract address of an owner
+   * @param owner The owner of the SecureVault contract
+   * @return The SecureVault contract address of the owner
+   */
   function getSecureVault(address owner) external view returns (address) {
     return _ownersSecureVaults[owner];
   }
 
+  /**
+   * @notice Register a new verifier
+   * @param verifier The address of the verifier
+   * @param name The name of the verifier
+   */
   function registerVerifier(address verifier, string memory name) external onlyOwner {
     if (_verifiers[verifier].verifier != address(0)) revert VerifierAlreadyExist();
     _verifiers[verifier] = Verifier({
@@ -56,6 +68,15 @@ contract SecureVaultFactory is Ownable {
     });
   }
 
+  /**
+   * @notice Mint a new token to a user
+   * @param user The user to mint the token to
+   * @param visibility The visibility of the token
+   * @param documentHash The hash of the document
+   * @param keywords The keywords of the document
+   * @param documentType The type of the document
+   * @param uri The URI of the document
+   */
   function mint(
     address user,
     uint8 visibility,
@@ -73,6 +94,11 @@ contract SecureVaultFactory is Ownable {
     ISecureVault(secureVault).mint(msg.sender, visibility, documentHash, keywords, documentType, uri);
   }
 
+  /**
+   * @notice Get the verifier data
+   * @param verifier The address of the verifier
+   * @return The verifier data
+   */
   function getVerifier(
     address verifier
   ) external view returns (Verifier memory) {
