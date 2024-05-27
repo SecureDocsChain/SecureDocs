@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.25;
 
-import {SecureVault} from "./SecureVault.sol";
-import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol"; 
+import {SecureVault, Metadata} from "./SecureVault.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/proxy/Clones.sol";
 
 error Unauthorized();

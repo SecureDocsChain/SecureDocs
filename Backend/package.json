@@ -8,6 +8,7 @@
     "start": "node server.js"
   },
   "dependencies": {
+    "@chainlink/contracts-ccip": "^1.4.0",
     "aws4": "^1.12.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
