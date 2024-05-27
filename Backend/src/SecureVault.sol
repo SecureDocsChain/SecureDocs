@@ -5,26 +5,17 @@ import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/Own
 import {ERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
 import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 
-
-error Unauthorized();
-error AlreadyInitialized();
+import {Metadata} from "./lib/Struct.sol";
+import {Unauthorized, AlreadyInitialized} from "./lib/Errors.sol";
 
 enum Visibility {
   Public,
   Private
 }
 
-struct Metadata {
-  uint8 visibility;
-  uint256 timestamp;
-  bytes32 documentHash;
-  bytes32[] keywords;
-  string documentType;
-  string uri;
-}
-
 contract SecureVault is ERC721Upgradeable, OwnableUpgradeable {
   uint256 public ptrTokenId;
+  address public router;
 
   mapping(uint256 => Metadata) public metadata;
 
@@ -38,19 +29,23 @@ contract SecureVault is ERC721Upgradeable, OwnableUpgradeable {
     address initialOwner
   ) external initializer {
     __ERC721_init("SecureVault", "SV");
+    router = msg.sender;
     ptrTokenId = 1;
     _transferOwnership(initialOwner);
   }
 
   /// @dev Mint a new token with the provided metadata
   function mint(
+    address verifier,
     uint8 visibility,
     bytes32 documentHash,
     bytes32[] memory keywords,
     string memory documentType,
     string memory uri
-  ) external onlyOwner {
+  ) external {
+    if (msg.sender != router) revert Unauthorized();
     metadata[ptrTokenId] = Metadata({
+      verifier: verifier,
       visibility: visibility,
       timestamp: block.timestamp,
       documentHash: documentHash,
@@ -58,7 +53,7 @@ contract SecureVault is ERC721Upgradeable, OwnableUpgradeable {
       documentType: documentType,
       uri: uri
     });
-    _mint(msg.sender, ptrTokenId);
+    _mint(owner(), ptrTokenId);
     unchecked { ptrTokenId++; }
   }
 
