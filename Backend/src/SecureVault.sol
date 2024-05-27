@@ -13,6 +13,10 @@ enum Visibility {
   Private
 }
 
+/**
+ * @title SecureVault
+ * @notice The SecureVault contract is an ERC721 contract that stores metadata of documents
+ */
 contract SecureVault is ERC721Upgradeable, OwnableUpgradeable {
   uint256 public ptrTokenId;
   address public router;

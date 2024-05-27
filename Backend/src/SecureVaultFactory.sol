@@ -16,7 +16,8 @@ import {
 
 /**
  * @title SecureVaultFactory
- * @notice The SecureVaultFactory contract
+ * @notice The SecureVaultFactory contract is a factory contract that deploys SecureVault contracts
+ * and mints tokens.
  */
 contract SecureVaultFactory is Ownable {
   address private immutable _secureVaultTemplateAddress;
@@ -27,7 +28,7 @@ contract SecureVaultFactory is Ownable {
 
   event Deployed(address indexed secureVault);
 
-  constructor() Ownable(msg.sender) { 
+  constructor() Ownable(msg.sender) {
     _secureVaultTemplateAddress = address(new SecureVault());
   }
 
