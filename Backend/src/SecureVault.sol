@@ -6,7 +6,7 @@ import {ERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC72
 import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 
 import {Metadata} from "./lib/Struct.sol";
-import {Unauthorized, AlreadyInitialized} from "./lib/Errors.sol";
+import {Unauthorized, AlreadyInitialized, TransferOwnershipNotAllowed} from "./lib/Errors.sol";
 
 enum Visibility {
   Public,
@@ -24,7 +24,10 @@ contract SecureVault is ERC721Upgradeable, OwnableUpgradeable {
     _disableInitializers();
   }
 
-  // @dev Initialize the contract with the provided parameters
+  /**
+   * @notice Initialize the contract
+   * @param initialOwner The owner of the contract
+   */
   function initialize(
     address initialOwner
   ) external initializer {
@@ -34,7 +37,15 @@ contract SecureVault is ERC721Upgradeable, OwnableUpgradeable {
     _transferOwnership(initialOwner);
   }
 
-  /// @dev Mint a new token with the provided metadata
+  /**
+   * @notice Mint a new token to the owner
+   * @param verifier the verifier address
+   * @param visibility The visibility of the token
+   * @param documentHash The hash of the document
+   * @param keywords The keywords of the document
+   * @param documentType The type of the document
+   * @param uri The URI of the document
+   */
   function mint(
     address verifier,
     uint8 visibility,
@@ -57,17 +68,13 @@ contract SecureVault is ERC721Upgradeable, OwnableUpgradeable {
     unchecked { ptrTokenId++; }
   }
 
-  /// @dev Get the metadata of a token
+  /**
+   * @notice Get the metadata of a token
+   * @param tokenId The token ID
+   * @return The metadata of the token
+   */
   function getMetadata(uint256 tokenId) external view returns (Metadata memory) {
     return metadata[tokenId];
-  }
-
-  function name() public pure override returns (string memory) {
-    return "SecureVault";
-  }
-
-  function symbol() public pure override returns (string memory) {
-    return "SV";
   }
 
   /// @dev Get the token URI
@@ -82,5 +89,11 @@ contract SecureVault is ERC721Upgradeable, OwnableUpgradeable {
       revert Unauthorized();
     }
     return super._update(to, tokenId, auth);
+  }
+
+  /// @dev Override _transferOwnership to prevent ownership transfer when owner is already set
+  function _transferOwnership(address newOwner) internal virtual override {
+    if (owner() != address(0)) revert TransferOwnershipNotAllowed();
+    super._transferOwnership(newOwner);
   }
 }

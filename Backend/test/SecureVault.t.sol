@@ -200,6 +200,18 @@ contract TestSecureVault is Test {
     vm.stopPrank();
   }
 
+  function testTransferOwnershipShouldFail() public {
+    testRegisterVerifier();
+    address secureVaultAddress = testDeployNewSecureVault();
+    
+    vm.startPrank(user1);
+
+    vm.expectRevert();
+    SecureVault(secureVaultAddress).transferOwnership(user2);
+
+    vm.stopPrank();
+  }
+
   function testGetName() public {
     address secureVaultAddress = testDeployNewSecureVault();
 

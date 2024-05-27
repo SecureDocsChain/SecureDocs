@@ -6,3 +6,4 @@ error AlreadyInitialized();
 error ContractLogicAlreadySet();
 error SecureVaultAlreadyDeployed();
 error VerifierAlreadyExist();
+error TransferOwnershipNotAllowed();
