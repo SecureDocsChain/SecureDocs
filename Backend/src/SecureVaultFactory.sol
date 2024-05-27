@@ -66,7 +66,10 @@ contract SecureVaultFactory is Ownable {
   ) external {
     if (msg.sender != _verifiers[msg.sender].verifier) revert Unauthorized();
     address secureVault = _ownersSecureVaults[user];
-    if (secureVault == address(0)) deploy(user);
+    if (secureVault == address(0)) { 
+      deploy(user);
+      secureVault = _ownersSecureVaults[user];
+    }
     ISecureVault(secureVault).mint(msg.sender, visibility, documentHash, keywords, documentType, uri);
   }
 
