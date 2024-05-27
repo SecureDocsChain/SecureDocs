@@ -1,0 +1,42 @@
+/* src/app/styles/Home.module.css */
+.container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .main {
+    text-align: center;
+  }
+  
+  .title {
+    margin: 0;
+    line-height: 1.15;
+    font-size: 2.5rem;
+  }
+  
+  .description {
+    line-height: 1.5;
+    font-size: 1.25rem;
+    margin: 4rem 0;
+  }
+  
+  .buttons {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .button {
+    background: #0070f3;
+    color: white;
+    border: none;
+    padding: 1em 2em;
+    margin: 0.5em;
+    font-size: 1rem;
+    cursor: pointer;
+  }
+  .button:hover {
+    background: #0056b3;
+  }
