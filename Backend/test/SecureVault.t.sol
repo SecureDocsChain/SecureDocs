@@ -39,6 +39,15 @@ contract TestSecureVault is Test {
     vm.stopPrank();
   }
 
+  function testRegisterVerifierShouldFailIfNotOwner() public {
+    vm.startPrank(user1);
+
+    vm.expectRevert();
+    factory.registerVerifier(verifier, "Verifier");
+
+    vm.stopPrank();
+  }
+
   function testDeployNewSecureVault() public returns (address secureVaultAddress) {
     vm.startPrank(user1);
 
@@ -87,7 +96,7 @@ contract TestSecureVault is Test {
 
   function testMintNewTokenShouldFailIfNotVerifier() public {
     testRegisterVerifier();
-    address secureVaultAddress = testDeployNewSecureVault();
+    testDeployNewSecureVault();
     
     vm.startPrank(user2);
 
