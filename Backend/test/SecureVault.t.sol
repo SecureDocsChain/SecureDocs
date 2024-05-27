@@ -2,8 +2,10 @@
 pragma solidity 0.8.25;
 
 import {Test, console2} from "forge-std/Test.sol";
-import {SecureVault, Metadata, Visibility} from "../src/SecureVault.sol";
+import {SecureVault, Visibility} from "../src/SecureVault.sol";
 import {SecureVaultFactory} from "../src/SecureVaultFactory.sol";
+
+import {Verifier, Metadata} from "../src/lib/Struct.sol";
 
 contract TestSecureVault is Test {
   SecureVault internal logic;
@@ -14,6 +16,7 @@ contract TestSecureVault is Test {
   address private user1 = makeAddr("user1");
   address private user2 = makeAddr("user2");
   address private user3 = makeAddr("user3");
+  address private verifier = makeAddr("verifier");
 
   function setUp() public {
     vm.startPrank(owner);
@@ -23,10 +26,23 @@ contract TestSecureVault is Test {
     vm.stopPrank();
   }
 
+  function testRegisterVerifier() public {
+    vm.startPrank(owner);
+
+    factory.registerVerifier(verifier, "Verifier");
+
+    Verifier memory verifierData = factory.getVerifier(verifier);
+
+    require(verifierData.verifier == verifier, "Verifier address should be verifier");
+    require(keccak256(bytes(verifierData.name)) == keccak256("Verifier"), "Verifier name should be 'Verifier'");
+
+    vm.stopPrank();
+  }
+
   function testDeployNewSecureVault() public returns (address secureVaultAddress) {
     vm.startPrank(user1);
 
-    factory.deploy();
+    factory.deploy(user1);
 
     secureVaultAddress = factory.getSecureVault(user1);
 
@@ -38,11 +54,13 @@ contract TestSecureVault is Test {
   }
 
   function testMintNewTokenToUser1() public {
+    testRegisterVerifier();
     address secureVaultAddress = testDeployNewSecureVault();
     
-    vm.startPrank(user1);
+    vm.startPrank(verifier);
 
-    SecureVault(secureVaultAddress).mint(
+    factory.mint(
+      user1,
       uint8(Visibility.Public),
       keccak256("Test"),
       new bytes32[](0),
@@ -67,13 +85,15 @@ contract TestSecureVault is Test {
     vm.stopPrank();
   }
 
-  function testMintNewTokenShouldFailIfNotOwner() public {
+  function testMintNewTokenShouldFailIfNotVerifier() public {
+    testRegisterVerifier();
     address secureVaultAddress = testDeployNewSecureVault();
     
     vm.startPrank(user2);
 
     vm.expectRevert();
-    SecureVault(secureVaultAddress).mint(
+    factory.mint(
+      user1,
       uint8(Visibility.Public),
       keccak256("Test"),
       new bytes32[](0),
@@ -85,11 +105,13 @@ contract TestSecureVault is Test {
   }
 
   function testTransferTokenShouldFail() public {
+    testRegisterVerifier();
     address secureVaultAddress = testDeployNewSecureVault();
     
-    vm.startPrank(user1);
+    vm.startPrank(verifier);
 
-    SecureVault(secureVaultAddress).mint(
+    factory.mint(
+      user1,
       uint8(Visibility.Public),
       keccak256("Test"),
       new bytes32[](0),
@@ -106,23 +128,25 @@ contract TestSecureVault is Test {
   function testDeployTwiceForTheSameUserShouldFail() public {
     vm.startPrank(user1);
 
-    factory.deploy();
+    factory.deploy(user1);
 
 
     vm.expectRevert();
-    factory.deploy();
+    factory.deploy(user1);
 
     vm.stopPrank();
   }
 
   function testGetMetadata() public {
+    testRegisterVerifier();
     address secureVaultAddress = testDeployNewSecureVault();
     
-    vm.startPrank(user1);
+    vm.startPrank(verifier);
 
     vm.warp(1000);
 
-    SecureVault(secureVaultAddress).mint(
+    factory.mint(
+      user1,
       uint8(Visibility.Public),
       keccak256("Test"),
       new bytes32[](0),
