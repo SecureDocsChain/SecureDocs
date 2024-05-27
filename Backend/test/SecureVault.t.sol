@@ -10,7 +10,6 @@ import {Verifier, Metadata} from "../src/lib/Struct.sol";
 contract TestSecureVault is Test {
   SecureVault internal logic;
   SecureVaultFactory internal factory;
-
   
   address private owner = makeAddr("owner");
   address private user1 = makeAddr("user1");
@@ -109,6 +108,31 @@ contract TestSecureVault is Test {
       "Test",
       "https://example.com"
     );
+
+    vm.stopPrank();
+  }
+
+  function testMintNewTokenWithoutSecureVaultShouldDeploySecureVault() public {
+    testRegisterVerifier();
+    
+    vm.startPrank(verifier);
+
+    factory.mint(
+      user1,
+      uint8(Visibility.Public),
+      keccak256("Test"),
+      new bytes32[](0),
+      "Test",
+      "https://example.com"
+    );
+
+    address secureVaultAddress = factory.getSecureVault(user1);
+
+    require(secureVaultAddress != address(0), "SecureVault address should not be address zero");
+    require(SecureVault(secureVaultAddress).owner() == user1, "SecureVault owner should be user1");
+    require(SecureVault(secureVaultAddress).balanceOf(user1) == 1, "User1 should have 1 token");
+    require(SecureVault(secureVaultAddress).ownerOf(1) == user1, "User1 should own token 1");
+    require(SecureVault(secureVaultAddress).ptrTokenId() == 2, "SecureVault ptrTokenId should be 2");
 
     vm.stopPrank();
   }
