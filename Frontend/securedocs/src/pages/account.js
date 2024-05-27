@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useRouter } from 'next/router'; // Importez useRouter
+import { useRouter } from 'next/router';
 import "../app/styles/globals.css";
 import { useWeb3Auth } from "../context/web3AuthContext";
+import { ethers } from "ethers"; // Importez ethers.js
 
 const axiosInstance = axios.create({
   baseURL: 'http://localhost:3000', // URL de base pour toutes les requêtes
@@ -13,7 +14,7 @@ const AccountPage = () => {
   const [userInfo, setUserInfo] = useState(null);
   const [documents, setDocuments] = useState([]);
   const [error, setError] = useState(null);
-  const router = useRouter(); // Initialisez useRouter
+  const router = useRouter();
 
   useEffect(() => {
     if (email) {
@@ -53,12 +54,16 @@ const AccountPage = () => {
 
   const handleDocumentSubmit = async () => {
     try {
-      // Redirigez vers la page /upload directement
       router.push('/upload');
     } catch (error) {
       setError("Error submitting document");
       console.error("Error submitting document:", error);
     }
+  };
+
+  const sendToAvalanche = async (document) => {
+    // Fonction vide pour interagir avec le contrat Avalanche
+    console.log('Sending document to Avalanche:', document);
   };
 
   if (loading) return <div>Loading...</div>;
@@ -92,7 +97,7 @@ const AccountPage = () => {
         </div>
       </header>
       <main className="flex flex-col items-center justify-center flex-1 w-full px-4">
-        <h1 className="mt-10 mb-4 text-3xl font-bold text-center md:text-5xl">Account</h1>
+        <h1 className="mt-10 mb-4 text-3xl font-bold text-center md:text-5xl">Account Page</h1>
         <div className="w-full max-w-2xl p-4 bg-white rounded-md shadow-md">
           <h2 className="mb-4 text-xl font-semibold">Update Information</h2>
           <input
@@ -123,7 +128,17 @@ const AccountPage = () => {
             <ul className="space-y-2">
               {documents.map(doc => (
                 <li key={doc._id} className="px-4 py-2 bg-gray-100 rounded-md">
-                  {doc.fileName} - {doc.status}
+                  <div className="flex items-center justify-between">
+                    <span>{doc.fileName} - {doc.status}</span>
+                    {doc.status === 'validé' && (
+                      <button
+                        onClick={() => sendToAvalanche(doc)}
+                        className="px-4 py-2 font-bold text-white bg-green-600 rounded-md hover:bg-green-800"
+                      >
+                        Send to Avalanche Chain
+                      </button>
+                    )}
+                  </div>
                 </li>
               ))}
             </ul>
