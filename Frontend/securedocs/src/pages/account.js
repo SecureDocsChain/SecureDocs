@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { useRouter } from 'next/router'; // Importez useRouter
 import "../app/styles/globals.css";
 import { useWeb3Auth } from "../context/web3AuthContext";
 
@@ -11,8 +12,8 @@ const AccountPage = () => {
   const { connect, disconnect, loggedIn, email, loading } = useWeb3Auth();
   const [userInfo, setUserInfo] = useState(null);
   const [documents, setDocuments] = useState([]);
-  const [newDocumentName, setNewDocumentName] = useState('');
   const [error, setError] = useState(null);
+  const router = useRouter(); // Initialisez useRouter
 
   useEffect(() => {
     if (email) {
@@ -51,18 +52,9 @@ const AccountPage = () => {
   };
 
   const handleDocumentSubmit = async () => {
-    if (newDocumentName.trim() === '') {
-      setError('Document name cannot be empty');
-      return;
-    }
-
     try {
-      const response = await axios.post('/api/documents', {
-        userEmail: email, // Envoyez l'email de l'utilisateur
-        name: newDocumentName
-      });
-      setDocuments([...documents, response.data]);
-      setNewDocumentName('');
+      // Redirigez vers la page /upload directement
+      router.push('/upload');
     } catch (error) {
       setError("Error submitting document");
       console.error("Error submitting document:", error);
@@ -100,7 +92,7 @@ const AccountPage = () => {
         </div>
       </header>
       <main className="flex flex-col items-center justify-center flex-1 w-full px-4">
-        <h1 className="mt-10 mb-4 text-3xl font-bold text-center md:text-5xl">Account Page</h1>
+        <h1 className="mt-10 mb-4 text-3xl font-bold text-center md:text-5xl">Account</h1>
         <div className="w-full max-w-2xl p-4 bg-white rounded-md shadow-md">
           <h2 className="mb-4 text-xl font-semibold">Update Information</h2>
           <input
@@ -110,14 +102,14 @@ const AccountPage = () => {
             onChange={(e) => handleUserUpdate('email', e.target.value)}
             className="w-full px-4 py-2 mb-4 border rounded-md"
           />
-          <h2 className="mb-4 text-xl font-semibold">Submit a Document</h2>
           <input
             type="text"
-            placeholder="Document Name"
-            value={newDocumentName}
-            onChange={(e) => setNewDocumentName(e.target.value)}
+            placeholder="Name"
+            value={userInfo?.name || ''}
+            onChange={(e) => handleUserUpdate('name', e.target.value)}
             className="w-full px-4 py-2 mb-4 border rounded-md"
           />
+          <h2 className="mb-4 text-xl font-semibold">Submit a Document</h2>
           <button
             onClick={handleDocumentSubmit}
             className="w-full px-4 py-2 font-bold text-white bg-blue-600 rounded-md hover:bg-blue-800"
