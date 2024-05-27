@@ -35,7 +35,7 @@ contract SecureVaultFactory is Ownable {
    * @notice Deploy a new SecureVault contract
    * @param owner The owner of the SecureVault contract
    */
-  function deploy(address owner) public {
+  function deploy(address owner) public returns (address) {
     if (_ownersSecureVaults[owner] != address(0)) revert SecureVaultAlreadyDeployed();
     address clone = Clones.clone(_secureVaultTemplateAddress);
 
@@ -44,6 +44,7 @@ contract SecureVaultFactory is Ownable {
     _ownersSecureVaults[owner] = clone;
     unchecked { _secureVaultDeployedCount++; }
     emit Deployed(clone);
+    return clone;
   }
 
   /**
@@ -87,9 +88,8 @@ contract SecureVaultFactory is Ownable {
   ) external {
     if (msg.sender != _verifiers[msg.sender].verifier) revert Unauthorized();
     address secureVault = _ownersSecureVaults[user];
-    if (secureVault == address(0)) { 
-      deploy(user);
-      secureVault = _ownersSecureVaults[user];
+    if (secureVault == address(0)) {
+      secureVault = deploy(user);
     }
     ISecureVault(secureVault).mint(msg.sender, visibility, documentHash, keywords, documentType, uri);
   }
