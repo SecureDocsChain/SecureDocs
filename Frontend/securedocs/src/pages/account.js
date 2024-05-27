@@ -66,6 +66,43 @@ const AccountPage = () => {
     console.log('Sending document to Avalanche:', document);
   };
 
+  const base64ToBlob = (base64, contentType = '', sliceSize = 512) => {
+    const byteCharacters = atob(base64);
+    const byteArrays = [];
+
+    for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+      const slice = byteCharacters.slice(offset, offset + sliceSize);
+
+      const byteNumbers = new Array(slice.length);
+      for (let i = 0; i < slice.length; i++) {
+        byteNumbers[i] = slice.charCodeAt(i);
+      }
+
+      const byteArray = new Uint8Array(byteNumbers);
+      byteArrays.push(byteArray);
+    }
+
+    const blob = new Blob(byteArrays, { type: contentType });
+    return blob;
+  };
+
+  const handleDownload = (base64, fileName, contentType) => {
+    const blob = base64ToBlob(base64, contentType);
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+  };
+
+  const shortenName = (name, maxLength = 15) => {
+    if (name.length <= maxLength) return name;
+    return name.substring(0, maxLength) + '...';
+  };
+
   if (loading) return <div>Loading...</div>;
 
   if (error) return <div>{error}</div>;
@@ -125,23 +162,30 @@ const AccountPage = () => {
           {documents.length === 0 ? (
             <div>No documents available.</div>
           ) : (
-            <ul className="space-y-2">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {documents.map(doc => (
-                <li key={doc._id} className="px-4 py-2 bg-gray-100 rounded-md">
-                  <div className="flex items-center justify-between">
-                    <span>{doc.fileName} - {doc.status}</span>
+                <div key={doc._id} className="p-4 bg-gray-100 rounded-md shadow-md">
+                  <div className="flex flex-col items-center justify-between h-full">
+                    <span className="block mb-2 text-sm font-medium text-center">{shortenName(doc.fileName)}</span>
+                    <span className="block mb-2 text-xs">{doc.status}</span>
                     {doc.status === 'validé' && (
                       <button
                         onClick={() => sendToAvalanche(doc)}
-                        className="px-4 py-2 font-bold text-white bg-green-600 rounded-md hover:bg-green-800"
+                        className="w-full px-2 py-1 mb-2 text-xs font-bold text-white bg-green-600 rounded-md hover:bg-green-800"
                       >
-                        Send to Avalanche Chain
+                        Send to Avalanche
                       </button>
                     )}
+                    <button
+                      onClick={() => handleDownload(doc.fileData, doc.fileName, doc.contentType)}
+                      className="w-full px-2 py-1 text-xs font-bold text-white bg-blue-600 rounded-md hover:bg-blue-800"
+                    >
+                      Download
+                    </button>
                   </div>
-                </li>
+                </div>
               ))}
-            </ul>
+            </div>
           )}
         </div>
       </main>
