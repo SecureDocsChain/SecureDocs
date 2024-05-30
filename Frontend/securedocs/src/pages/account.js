@@ -6,11 +6,16 @@ import { useWeb3Auth } from "../context/web3AuthContext";
 import { ethers } from "ethers"; // Importez ethers.js
 
 import senderAbi from "../abi/SecureVaultSender.json";
+import receiverAbi from "../abi/SecureVaultReceiver.json";
 import ERC20Abi from "../abi/ERC20.json";
 
 const axiosInstance = axios.create({
   baseURL: "http://localhost:3000", // URL de base pour toutes les requêtes
 });
+
+const avalancheProvider = new ethers.providers.JsonRpcProvider(
+  "https://avalanche-fuji-c-chain-rpc.publicnode.com"
+);
 
 const AccountPage = () => {
   const { connect, disconnect, loggedIn, email, loading, signer, address } =
@@ -46,6 +51,20 @@ const AccountPage = () => {
     }
   }, [email]);
 
+  useEffect(() => {
+    if (documents.length > 0) {
+      documents.forEach(async (doc, index) => {
+        const res = await checkIfDocumentAlreadySentToAvalanche(doc);
+        console.log("Already sent:", res);
+        if (res.success && !documents[index].isSentToAvalanch) {
+          const updatedDocuments = [...documents];
+          updatedDocuments[index].isSentToAvalanch = true;
+          setDocuments(updatedDocuments);
+        }
+      });
+    }
+  }, [documents]);
+
   const handleUserUpdate = async (key, value) => {
     if (email) {
       try {
@@ -66,6 +85,27 @@ const AccountPage = () => {
     } catch (error) {
       setError("Error submitting document");
       console.error("Error submitting document:", error);
+    }
+  };
+
+  const checkIfDocumentAlreadySentToAvalanche = async (document) => {
+    const contract = new ethers.Contract(
+      process.env.NEXT_PUBLIC_RECEIVER_AVALANCH_CONTRACT_ADDRESS,
+      receiverAbi.abi,
+      avalancheProvider
+    );
+    try {
+      const result = await contract.getDocumentData(address, document.tokenId);
+      if (
+        result[3] !=
+        "0x0000000000000000000000000000000000000000000000000000000000000000"
+      ) {
+        return { success: true, result };
+      }
+      return { success: false, result };
+    } catch (error) {
+      console.error("Error fetching document data from Avalanche:", error);
+      return { success: false };
     }
   };
 
@@ -228,12 +268,17 @@ const AccountPage = () => {
                       {shortenName(doc.fileName)}
                     </span>
                     <span className="block mb-2 text-xs">{doc.status}</span>
-                    {doc.status === "validé" && (
+                    {doc.status === "validé" && !doc.isSentToAvalanch && (
                       <button
                         onClick={() => sendToAvalanche(doc)}
                         className="w-full px-2 py-1 mb-2 text-xs font-bold text-white bg-green-600 rounded-md hover:bg-green-800"
                       >
                         Send to Avalanche
+                      </button>
+                    )}
+                    {doc.status === "validé" && doc.isSentToAvalanch && (
+                      <button className="w-full px-2 py-1 mb-2 text-xs font-bold text-white bg-red-600 rounded-md">
+                        Already sent to Avalanche
                       </button>
                     )}
                     <button
