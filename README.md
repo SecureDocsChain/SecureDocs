@@ -1,3 +1,5 @@
+# SecureDocs
+SecureDocs uses blockchain to ensure document integrity and traceability. It integrates Chainlink for automation and ERC-1400 tokens for access control, providing a secure, decentralized document management system. Technologies include ZkSync for scalability and Chainlink for real-time data verification.
 # Securedocs: Technical Documentation
 
 ## Introduction
@@ -13,7 +15,7 @@ The three smart contracts involved are:
 1. **SecureVault.sol**: An ERC721 contract that stores metadata of documents and manages document visibility.
 2. **SecureVaultFactory.sol**: A factory contract for deploying SecureVault contracts and minting tokens.
 3. **SecureVaultReceiver.sol**: A contract that facilitates the reception of cross-chain messages containing document metadata.
-4. **SecureVaultSender.sol**: A contract that allows users to send verified documents from their SecureVault across chains with CCIP.
+4. **SecureVaultSender.sol**: A contract that allows users to send verified documents from their SecureVault across chains.
 
 ### User Workflow
 1. **User Uploads a Document**: 
@@ -143,8 +145,6 @@ sender.sendVerifiedDocumentCrossChain(userAddress, tokenId, destinationChainSele
    - **User**: Defines user information, including their wallet, email, name, KYC status, associated documents, and appointments.
    - **Notaire**: Defines notary information, including their wallet, email, name, address, phone number, KBIS number, and professional information.
    - **Document**: Stores documents uploaded by users, including file data, hash for integrity verification, and validation status.
-   - **Appointment**: Manages appointments between users and notaries, including date, status, and associated user and notary IDs.
-   - **Transaction**: Handles financial transactions related to document handling, including transaction status, amount, and blockchain transaction hash.
 
 1. **User**
    - **Schema Definition**:
@@ -255,10 +255,7 @@ The account page allows users to view and update their account information and m
 - **handleDownload**: Handles document download.
 - **shortenName**: Shortens long file names for display.
 
-###Upload Page (upload.js)
-
-
-
+### Upload Page (upload.js)
 
 
 The upload page allows users to upload their documents securely. This page handles the file upload, calculates the file hash for integrity, and sends the file to the backend.
