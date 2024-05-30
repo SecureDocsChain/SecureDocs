@@ -145,8 +145,6 @@ sender.sendVerifiedDocumentCrossChain(userAddress, tokenId, destinationChainSele
    - **User**: Defines user information, including their wallet, email, name, KYC status, associated documents, and appointments.
    - **Notaire**: Defines notary information, including their wallet, email, name, address, phone number, KBIS number, and professional information.
    - **Document**: Stores documents uploaded by users, including file data, hash for integrity verification, and validation status.
-   - **Appointment**: Manages appointments between users and notaries, including date, status, and associated user and notary IDs.
-   - **Transaction**: Handles financial transactions related to document handling, including transaction status, amount, and blockchain transaction hash.
 
 1. **User**
    - **Schema Definition**:
