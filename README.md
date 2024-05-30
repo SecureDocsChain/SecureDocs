@@ -1,6 +1,5 @@
 # Securedocs: Cross-chain document security protocol
 
-## Introduction
 
 Securedocs is a decentralized, cross-chain application designed to ensure the security and authenticity of documents using blockchain technology. This project, developed for the Chainlink hackathon, focuses on secure document management. The application leverages the Cross-Chain Interoperability Protocol (CCIP) to enable seamless and secure document transfer between different blockchain networks, such as Polygon and Avalanche.
 
@@ -15,14 +14,26 @@ The four smart contracts involved are:
 3. **SecureVaultReceiver.sol**: A contract that facilitates the reception of cross-chain messages containing document metadata.
 4. **SecureVaultSender.sol**: A contract that allows users to send verified documents from their SecureVault across chains.
 
-## Team
+# Team
 
 - **Gérald Quenum**: Gérald, immersed in blockchain for ten years, has been a developer for four. Specializing in tokenization, he creates secure solutions. Off-duty, he enjoys Flight Simulator. With four computers, a tablet, and three phones, Gérald stays connected and creative.
 
 - **Jeremie Lucotte**: Full Stack Developer with expertise in frontend and backend development for blockchain projects.
 
 
-### User Workflow
+## Problem Being Solved
+
+The problem Securedocs aims to solve is the lack of a secure, decentralized way to manage and authenticate documents across different blockchain networks. Traditional document management systems are often centralized, making them vulnerable to hacking, data breaches, and loss of data integrity.
+
+## Issues Encountered
+
+- **QR Code Integration**: We had to slightly modify the project during development because it was impossible to integrate a QR code securely within the given timeframe.
+- **Time Constraints**: The short timeframe posed significant challenges, leading to rapid development .
+- **Team Management**: We faced some team management issues which affected our workflow and efficiency.
+
+
+
+# User Workflow
 1. **User Uploads a Document**: 
    - The user uploads a document via the frontend.
    - The document is sent to the backend where it is stored in the database.
@@ -269,3 +280,64 @@ The upload page allows users to upload their documents securely. This page handl
 
 **handleFileChange:** Handles the file input change event.
 **handleSubmit:** Handles the form submission to upload the document.
+
+## Installation and Execution
+
+### Prerequisites
+
+- Node.js (version 14 or higher)
+- npm or yarn
+- MongoDB
+
+### Backend
+
+1. Clone the repository:
+
+   ```bash
+   git clone 
+   cd securedocs/backend
+
+2. Install dependencies:
+
+    ```bash
+    npm install
+
+3. Set up environment variables in a .env file:
+
+    ```bash
+    MONGO_URL=
+    SEPOLIA_RPC_URL=https://ethereum-sepolia-rpc.publicnode.com
+
+4. Start the backend server:
+
+node server.js
+
+
+### Frontend
+
+1. Navigate to the frontend directory:
+
+   ```bash
+    cd ../frontend
+
+2. Install dependencies:
+
+    ```bash
+    npm install
+
+3. Set up environment variables in a .env file:
+
+    ```bash
+    NEXT_PUBLIC_WEB3AUTH_CLIENT_ID=
+    MONGO_URL=
+
+4. Set up environment variables in a .env.local file:
+
+    ```bash
+    NEXT_PUBLIC_WEB3AUTH_CLIENT_ID=
+    NEXT_PUBLIC_API_URL=http://localhost:3000/api
+
+5. Start the backend server:
+
+    ```bash
+    npm run dev
