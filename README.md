@@ -255,10 +255,7 @@ The account page allows users to view and update their account information and m
 - **handleDownload**: Handles document download.
 - **shortenName**: Shortens long file names for display.
 
-###Upload Page (upload.js)
-
-
-
+### Upload Page (upload.js)
 
 
 The upload page allows users to upload their documents securely. This page handles the file upload, calculates the file hash for integrity, and sends the file to the backend.
