@@ -3,8 +3,8 @@ import { Web3Auth } from "@web3auth/modal";
 import { CHAIN_NAMESPACES, WEB3AUTH_NETWORK } from "@web3auth/base";
 import { EthereumPrivateKeyProvider } from "@web3auth/ethereum-provider";
 import { ethers } from "ethers";
-import { useRouter } from 'next/router';
-import axios from 'axios';
+import { useRouter } from "next/router";
+import axios from "axios";
 
 const Web3AuthContext = createContext();
 
@@ -24,6 +24,7 @@ const chainConfig = {
 export const Web3AuthProvider = ({ children }) => {
   const [web3auth, setWeb3Auth] = useState(null);
   const [provider, setProvider] = useState(null);
+  const [signer, setSigner] = useState(null);
   const [loggedIn, setLoggedIn] = useState(false);
   const [address, setAddress] = useState(null);
   const [email, setEmail] = useState(null);
@@ -37,18 +38,23 @@ export const Web3AuthProvider = ({ children }) => {
           clientId,
           chainConfig,
           web3AuthNetwork: WEB3AUTH_NETWORK.SAPPHIRE_DEVNET,
-          privateKeyProvider: new EthereumPrivateKeyProvider({ config: { chainConfig } }),
+          privateKeyProvider: new EthereumPrivateKeyProvider({
+            config: { chainConfig },
+          }),
         });
         await web3authInstance.initModal();
         setWeb3Auth(web3authInstance);
 
         if (web3authInstance.provider) {
-          const ethersProvider = new ethers.providers.Web3Provider(web3authInstance.provider);
+          const ethersProvider = new ethers.providers.Web3Provider(
+            web3authInstance.provider
+          );
           setProvider(ethersProvider);
           const signer = ethersProvider.getSigner();
           const userAddress = await signer.getAddress();
           const userInfo = await web3authInstance.getUserInfo();
           const userEmail = userInfo.email;
+          setSigner(signer);
           setAddress(userAddress);
           setEmail(userEmail);
           setLoggedIn(true);
@@ -68,7 +74,7 @@ export const Web3AuthProvider = ({ children }) => {
 
   const registerUser = async (userAddress, email) => {
     try {
-      await axios.post('/api/register', {
+      await axios.post("/api/register", {
         wallet: userAddress,
         email: email,
       });
@@ -86,19 +92,22 @@ export const Web3AuthProvider = ({ children }) => {
       await web3auth.connect();
 
       if (web3auth.provider) {
-        const ethersProvider = new ethers.providers.Web3Provider(web3auth.provider);
+        const ethersProvider = new ethers.providers.Web3Provider(
+          web3auth.provider
+        );
         setProvider(ethersProvider);
         const signer = ethersProvider.getSigner();
         const userAddress = await signer.getAddress();
         const userInfo = await web3auth.getUserInfo();
         const userEmail = userInfo.email;
+        setSigner(signer);
         setAddress(userAddress);
         setEmail(userEmail);
         setLoggedIn(true);
 
         // Enregistrer l'utilisateur dans la BDD
         await registerUser(userAddress, userEmail);
-        router.push('/account'); // Rediriger après connexion
+        router.push("/account"); // Rediriger après connexion
       }
     } catch (error) {
       console.error(error);
@@ -116,7 +125,8 @@ export const Web3AuthProvider = ({ children }) => {
       setLoggedIn(false);
       setAddress(null);
       setEmail(null);
-      router.push('/'); // Rediriger après déconnexion
+      setSigner(null);
+      router.push("/"); // Rediriger après déconnexion
     } catch (error) {
       console.error(error);
     }
@@ -126,6 +136,7 @@ export const Web3AuthProvider = ({ children }) => {
     provider,
     loggedIn,
     address,
+    signer,
     email, // Assurez-vous que l'email est inclus dans les props
     connect,
     disconnect,
