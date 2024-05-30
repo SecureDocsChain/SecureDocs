@@ -1,4 +1,4 @@
-# Securedocs: Technical Documentation
+# Securedocs: Cross-chain document security protocol
 
 ## Introduction
 
