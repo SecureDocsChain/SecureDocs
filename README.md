@@ -10,18 +10,22 @@ The protocol consists of two decentralized applications (dApps) and four smart c
 - **Notary dApp**: Enables notaries to verify and authenticate documents. An EVM wallet is created using Web3Auth for each notary.
 
 The three smart contracts involved are:
+
 1. **SecureVault.sol**: An ERC721 contract that stores metadata of documents and manages document visibility.
 2. **SecureVaultFactory.sol**: A factory contract for deploying SecureVault contracts and minting tokens.
 3. **SecureVaultReceiver.sol**: A contract that facilitates the reception of cross-chain messages containing document metadata.
 4. **SecureVaultSender.sol**: A contract that allows users to send verified documents from their SecureVault across chains.
 
 ### User Workflow
-1. **User Uploads a Document**: 
+
+1. **User Uploads a Document**:
+
    - The user uploads a document via the frontend.
    - The document is sent to the backend where it is stored in the database.
    - A hash of the document is generated and stored for integrity verification.
 
 2. **Notary Verifies the Document**:
+
    - A notary can select the document from the database.
    - The notary verifies the document and updates its status.
 
@@ -29,7 +33,6 @@ The three smart contracts involved are:
    - Once verified, a token representing the document is generated.
    - This token is then sent to the user's SecureVault.
    - Cross-Chain Interoperability Protocol (CCIP) is used to transfer document data securely between different blockchains, such as from Polygon to Avalanche.
-
 
 # SecureVault Protocol
 
@@ -110,7 +113,6 @@ The `SecureVaultSender` contract allows users to send verified documents from th
 5. **Mint Tokens and Store Metadata**: Use the `mint` function in `SecureVaultFactory` to mint new tokens and store document metadata.
 6. **Send Verified Documents Across Chains**: Use the `sendVerifiedDocumentCrossChain` function in `SecureVaultSender` to send verified documents to `SecureVaultReceiver` on other chains.
 
-
 ## Example Usage
 
 ```solidity
@@ -136,32 +138,40 @@ linkContractAddress.approve(sender, fee);
 sender.sendVerifiedDocumentCrossChain(userAddress, tokenId, destinationChainSelector, receiverAddress);
 ```
 
-
- 
 ### Backend
+
 1. **Models**
+
    - **User**: Defines user information, including their wallet, email, name, KYC status, associated documents, and appointments.
    - **Notaire**: Defines notary information, including their wallet, email, name, address, phone number, KBIS number, and professional information.
    - **Document**: Stores documents uploaded by users, including file data, hash for integrity verification, and validation status.
 
 1. **User**
+
    - **Schema Definition**:
      ```javascript
      const UserSchema = new mongoose.Schema({
        wallet: { type: String, required: true, unique: true, index: true },
        email: { type: String, unique: true, index: true },
        name: { type: String },
-       kycStatus: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
-       documents: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Document' }],
-       appointments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Appointment' }],
-       createdAt: { type: Date, default: Date.now }
+       kycStatus: {
+         type: String,
+         enum: ["pending", "approved", "rejected"],
+         default: "pending",
+       },
+       documents: [{ type: mongoose.Schema.Types.ObjectId, ref: "Document" }],
+       appointments: [
+         { type: mongoose.Schema.Types.ObjectId, ref: "Appointment" },
+       ],
+       createdAt: { type: Date, default: Date.now },
      });
      ```
    - **Functionality**:
      - Manages user information including wallet address, email, name, and KYC status.
      - Associates user with documents and appointments.
 
-2. **Notaire**
+1. **Notaire**
+
    - **Schema Definition**:
      ```javascript
      const NotaireSchema = new mongoose.Schema({
@@ -172,17 +182,23 @@ sender.sendVerifiedDocumentCrossChain(userAddress, tokenId, destinationChainSele
        phoneNumber: { type: String, required: true },
        kbisNumber: { type: String, required: true },
        professionalInfo: { type: String, required: true },
-       kycStatus: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
-       documents: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Document' }],
-       appointments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Appointment' }],
-       createdAt: { type: Date, default: Date.now }
+       kycStatus: {
+         type: String,
+         enum: ["pending", "approved", "rejected"],
+         default: "pending",
+       },
+       documents: [{ type: mongoose.Schema.Types.ObjectId, ref: "Document" }],
+       appointments: [
+         { type: mongoose.Schema.Types.ObjectId, ref: "Appointment" },
+       ],
+       createdAt: { type: Date, default: Date.now },
      });
      ```
    - **Functionality**:
      - Manages notary information including professional details and KYC status.
      - Associates notary with documents and appointments.
 
-3. **Document**
+1. **Document**
    - **Schema Definition**:
      ```javascript
      const DocumentSchema = new mongoose.Schema({
@@ -191,60 +207,70 @@ sender.sendVerifiedDocumentCrossChain(userAddress, tokenId, destinationChainSele
        fileName: { type: String, required: true },
        fileData: { type: Buffer, required: true },
        hash: { type: String, required: true },
-       status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
-       createdAt: { type: Date, default: Date.now }
+       status: {
+         type: String,
+         enum: ["pending", "approved", "rejected"],
+         default: "pending",
+       },
+       verifiedBy: { type: String },
+       tokenId: { type: Number },
+       createdAt: { type: Date, default: Date.now },
      });
      ```
    - **Functionality**:
      - Stores documents uploaded by users including file data and hash for integrity verification.
      - Tracks the status of document validation.
 
-
 ### API Endpoints
 
 #### User API
+
 - **Get User by Email**
   - **Endpoint**: `/api/users/:email`
   - **Method**: GET
   - **Functionality**: Retrieves user details by email.
   ```javascript
-  router.get('/:email', async (req, res) => {
+  router.get("/:email", async (req, res) => {
     await connectToDatabase();
     const { email } = req.params;
     const user = await User.findOne({ email }).lean();
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: "User not found" });
     }
     res.status(200).json(user);
   });
   ```
 
 #### Document API
+
 - **Upload Document**
+
   - **Endpoint**: `/api/upload`
   - **Method**: POST
   - **Functionality**: Uploads a document and stores it in the database.
- 
+
 - **Get User Documents**
   - **Endpoint**: `/api/documents/user/:userId`
   - **Method**: GET
   - **Functionality**: Retrieves all documents associated with a user.
 
-
 ## Frontend
 
 ### Home Page (`index.js`)
+
 The home page serves as the entry point of the application, offering users options to create an account or log in.
 
 **Functions:**
+
 - **connect**: Initiates the connection process to Web3Auth for authentication.
 - **disconnect**: Logs the user out of the Web3Auth session.
 
-
 ### Account Page (`account.js`)
+
 The account page allows users to view and update their account information and manage their documents.
 
 **Functions:**
+
 - **fetchUserData**: Fetches user information and documents from the backend.
 - **handleUserUpdate**: Updates user information in the backend.
 - **handleDocumentSubmit**: Redirects to the document upload page.
@@ -254,7 +280,6 @@ The account page allows users to view and update their account information and m
 - **shortenName**: Shortens long file names for display.
 
 ### Upload Page (upload.js)
-
 
 The upload page allows users to upload their documents securely. This page handles the file upload, calculates the file hash for integrity, and sends the file to the backend.
 
