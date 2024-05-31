@@ -14,16 +14,16 @@ The four smart contracts involved are:
 3. **SecureVaultReceiver.sol**: A contract that facilitates the reception of cross-chain messages containing document metadata.
 4. **SecureVaultSender.sol**: A contract that allows users to send verified documents from their SecureVault across chains.
 
+## Problem Being Solved
+
+The problem Securedocs aims to solve is the lack of a secure, decentralized way to manage and authenticate documents across different blockchain networks. Traditional document management systems are often centralized, making them vulnerable to hacking, data breaches, and loss of data integrity.
+
 # Team
 
 - **Gérald Quenum**: Gérald, immersed in blockchain for ten years, has been a developer for four. Specializing in tokenization, he creates secure solutions. Off-duty, he enjoys Flight Simulator. With four computers, a tablet, and three phones, Gérald stays connected and creative.
 
 - **Jeremie Lucotte**: I am a Solidity developer with four years of experience, specializing in creating smart contracts for secure and efficient blockchain applications. Over the past year, I have expanded my skills to become a full-stack developer, working on both front-end and back-end technologies.
 
-
-## Problem Being Solved
-
-The problem Securedocs aims to solve is the lack of a secure, decentralized way to manage and authenticate documents across different blockchain networks. Traditional document management systems are often centralized, making them vulnerable to hacking, data breaches, and loss of data integrity.
 
 ## Issues Encountered
 
