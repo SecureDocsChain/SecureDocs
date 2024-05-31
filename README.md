@@ -9,7 +9,7 @@ The protocol consists of two decentralized applications (dApps) and four smart c
 - **User dApp**: Allows users to upload and manage their documents. An EVM wallet is created using Web3Auth for each user.
 - **Notary dApp**: Enables notaries to verify and authenticate documents. An EVM wallet is created using Web3Auth for each notary.
 
-The three smart contracts involved are:
+The four smart contracts involved are:
 
 1. **SecureVault.sol**: An ERC721 contract that stores metadata of documents and manages document visibility.
 2. **SecureVaultFactory.sol**: A factory contract for deploying SecureVault contracts and minting tokens.
