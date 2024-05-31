@@ -104,7 +104,6 @@ const AccountPage = () => {
       }
       return { success: false, result };
     } catch (error) {
-      console.error("Error fetching document data from Avalanche:", error);
       return { success: false };
     }
   };
