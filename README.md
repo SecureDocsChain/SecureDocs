@@ -18,7 +18,7 @@ The four smart contracts involved are:
 
 - **Gérald Quenum**: Gérald, immersed in blockchain for ten years, has been a developer for four. Specializing in tokenization, he creates secure solutions. Off-duty, he enjoys Flight Simulator. With four computers, a tablet, and three phones, Gérald stays connected and creative.
 
-- **Jeremie Lucotte**: Full Stack Developer with expertise in frontend and backend development for blockchain projects.
+- **Jeremie Lucotte**: I am a Solidity developer with four years of experience, specializing in creating smart contracts for secure and efficient blockchain applications. Over the past year, I have expanded my skills to become a full-stack developer, working on both front-end and back-end technologies.
 
 
 ## Problem Being Solved
