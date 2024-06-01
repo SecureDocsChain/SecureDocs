@@ -1,6 +1,4 @@
-# Securedocs: Technical Documentation
-
-## Introduction
+# Securedocs: Cross-chain document security protocol
 
 Securedocs is a decentralized, cross-chain application designed to ensure the security and authenticity of documents using blockchain technology. This project, developed for the Chainlink hackathon, focuses on secure document management. The application leverages the Cross-Chain Interoperability Protocol (CCIP) to enable seamless and secure document transfer between different blockchain networks, such as Polygon and Avalanche.
 
@@ -9,13 +7,36 @@ The protocol consists of two decentralized applications (dApps) and four smart c
 - **User dApp**: Allows users to upload and manage their documents. An EVM wallet is created using Web3Auth for each user.
 - **Notary dApp**: Enables notaries to verify and authenticate documents. An EVM wallet is created using Web3Auth for each notary.
 
-The three smart contracts involved are:
+
+The four smart contracts involved are:
+
 1. **SecureVault.sol**: An ERC721 contract that stores metadata of documents and manages document visibility.
 2. **SecureVaultFactory.sol**: A factory contract for deploying SecureVault contracts and minting tokens.
 3. **SecureVaultReceiver.sol**: A contract that facilitates the reception of cross-chain messages containing document metadata.
 4. **SecureVaultSender.sol**: A contract that allows users to send verified documents from their SecureVault across chains.
 
-### User Workflow
+
+## Problem Being Solved
+
+The problem Securedocs aims to solve is the lack of a secure, decentralized way to manage and authenticate documents across different blockchain networks. Traditional document management systems are often centralized, making them vulnerable to hacking, data breaches, and loss of data integrity.
+
+# Team
+
+- **Gérald Quenum**: Gérald, immersed in blockchain for ten years, has been a developer for four. Specializing in tokenization, he creates secure solutions. Off-duty, he enjoys Flight Simulator. With four computers, a tablet, and three phones, Gérald stays connected and creative.
+
+- **Jeremie Lucotte**: I am a Solidity developer with four years of experience, specializing in creating smart contracts for secure and efficient blockchain applications. Over the past year, I have expanded my skills to become a full-stack developer, working on both front-end and back-end technologies.
+
+
+## Issues Encountered
+
+- **QR Code Integration**: We had to slightly modify the project during development because it was impossible to integrate a QR code securely within the given timeframe.
+- **Time Constraints**: The short timeframe posed significant challenges, leading to rapid development .
+- **Team Management**: We faced some team management issues which affected our workflow and efficiency.
+
+
+
+# User Workflow
+>>>>>>> main
 1. **User Uploads a Document**: 
    - The user uploads a document via the frontend.
    - The document is sent to the backend where it is stored in the database.
@@ -261,4 +282,70 @@ The upload page allows users to upload their documents securely. This page handl
 **Functions:**
 
 **handleFileChange:** Handles the file input change event.
+
 **handleSubmit:** Handles the form submission to upload the document.
+
+# Installation and Execution
+
+### Prerequisites
+
+- Node.js (version 14 or higher)
+- npm or yarn
+- MongoDB
+
+### Backend
+
+1. Clone the repository:
+
+   ```bash
+   git clone 
+   cd securedocs/backend
+
+2. Install dependencies:
+
+    ```bash
+    npm install
+
+3. Set up environment variables in a .env file:
+
+    ```bash
+    MONGO_URL=
+    SEPOLIA_RPC_URL=https://ethereum-sepolia-rpc.publicnode.com
+
+4. Start the backend server:
+
+node server.js
+
+
+### Frontend
+
+1. Navigate to the frontend directory:
+
+   ```bash
+    cd ../frontend
+
+2. Install dependencies:
+
+    ```bash
+    npm install
+
+3. Set up environment variables in a .env file:
+
+    ```bash
+    NEXT_PUBLIC_WEB3AUTH_CLIENT_ID=
+    MONGO_URL=
+
+4. Set up environment variables in a .env.local file:
+
+    ```bash
+    NEXT_PUBLIC_WEB3AUTH_CLIENT_ID=
+    NEXT_PUBLIC_API_URL=http://localhost:3000/api
+    NEXT_PUBLIC_FACTORY_ADDRESS=0xE3b5e636ab699b232466a23d119CFd2a823eF5dE
+    NEXT_PUBLIC_SENDER_CONTRACT_ADDRESS=0xac95534E22bc602252b9DD59B495a2beB703B7cA
+    NEXT_PUBLIC_RECEIVER_AVALANCH_CONTRACT_ADDRESS=0xd02A500Ec66953928Aee88B6Dd45F93c61A1F796
+    NEXT_PUBLIC_LINK_CONTRACT_ADDRESS=0x0Fd9e8d3aF1aaee056EB9e802c3A762a667b1904
+
+5. Start the backend server:
+
+    ```bash
+    npm run dev
