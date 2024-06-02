@@ -1,5 +1,6 @@
 # Securedocs: Cross-chain document security protocol
 
+
 Securedocs is a decentralized, cross-chain application designed to ensure the security and authenticity of documents using blockchain technology. This project, developed for the Chainlink hackathon, focuses on secure document management. The application leverages the Cross-Chain Interoperability Protocol (CCIP) to enable seamless and secure document transfer between different blockchain networks, such as Polygon and Avalanche.
 
 The protocol consists of two decentralized applications (dApps) and four smart contracts:
@@ -36,7 +37,7 @@ The problem Securedocs aims to solve is the lack of a secure, decentralized way 
 
 
 # User Workflow
->>>>>>> main
+
 1. **User Uploads a Document**: 
    - The user uploads a document via the frontend.
    - The document is sent to the backend where it is stored in the database.
@@ -348,4 +349,6 @@ node server.js
 5. Start the backend server:
 
     ```bash
+
     npm run dev
+
