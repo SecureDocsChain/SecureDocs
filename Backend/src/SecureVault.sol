@@ -5,26 +5,21 @@ import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/Own
 import {ERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
 import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 
-
-error Unauthorized();
-error AlreadyInitialized();
+import {Metadata} from "./lib/Struct.sol";
+import {Unauthorized, AlreadyInitialized, TransferOwnershipNotAllowed} from "./lib/Errors.sol";
 
 enum Visibility {
   Public,
   Private
 }
 
-struct Metadata {
-  uint8 visibility;
-  uint256 timestamp;
-  bytes32 documentHash;
-  bytes32[] keywords;
-  string documentType;
-  string uri;
-}
-
+/**
+ * @title SecureVault
+ * @notice The SecureVault contract is an ERC721 contract that stores metadata of documents
+ */
 contract SecureVault is ERC721Upgradeable, OwnableUpgradeable {
   uint256 public ptrTokenId;
+  address public router;
 
   mapping(uint256 => Metadata) public metadata;
 
@@ -33,24 +28,39 @@ contract SecureVault is ERC721Upgradeable, OwnableUpgradeable {
     _disableInitializers();
   }
 
-  // @dev Initialize the contract with the provided parameters
+  /**
+   * @notice Initialize the contract
+   * @param initialOwner The owner of the contract
+   */
   function initialize(
     address initialOwner
   ) external initializer {
     __ERC721_init("SecureVault", "SV");
+    router = msg.sender;
     ptrTokenId = 1;
     _transferOwnership(initialOwner);
   }
 
-  /// @dev Mint a new token with the provided metadata
+  /**
+   * @notice Mint a new token to the owner
+   * @param verifier the verifier address
+   * @param visibility The visibility of the token
+   * @param documentHash The hash of the document
+   * @param keywords The keywords of the document
+   * @param documentType The type of the document
+   * @param uri The URI of the document
+   */
   function mint(
+    address verifier,
     uint8 visibility,
     bytes32 documentHash,
     bytes32[] memory keywords,
     string memory documentType,
     string memory uri
-  ) external onlyOwner {
+  ) external {
+    if (msg.sender != router) revert Unauthorized();
     metadata[ptrTokenId] = Metadata({
+      verifier: verifier,
       visibility: visibility,
       timestamp: block.timestamp,
       documentHash: documentHash,
@@ -58,21 +68,17 @@ contract SecureVault is ERC721Upgradeable, OwnableUpgradeable {
       documentType: documentType,
       uri: uri
     });
-    _mint(msg.sender, ptrTokenId);
+    _mint(owner(), ptrTokenId);
     unchecked { ptrTokenId++; }
   }
 
-  /// @dev Get the metadata of a token
+  /**
+   * @notice Get the metadata of a token
+   * @param tokenId The token ID
+   * @return The metadata of the token
+   */
   function getMetadata(uint256 tokenId) external view returns (Metadata memory) {
     return metadata[tokenId];
-  }
-
-  function name() public pure override returns (string memory) {
-    return "SecureVault";
-  }
-
-  function symbol() public pure override returns (string memory) {
-    return "SV";
   }
 
   /// @dev Get the token URI
@@ -87,5 +93,11 @@ contract SecureVault is ERC721Upgradeable, OwnableUpgradeable {
       revert Unauthorized();
     }
     return super._update(to, tokenId, auth);
+  }
+
+  /// @dev Override _transferOwnership to prevent ownership transfer when owner is already set
+  function _transferOwnership(address newOwner) internal virtual override {
+    if (owner() != address(0)) revert TransferOwnershipNotAllowed();
+    super._transferOwnership(newOwner);
   }
 }

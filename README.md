@@ -8,11 +8,14 @@ The protocol consists of two decentralized applications (dApps) and four smart c
 - **User dApp**: Allows users to upload and manage their documents. An EVM wallet is created using Web3Auth for each user.
 - **Notary dApp**: Enables notaries to verify and authenticate documents. An EVM wallet is created using Web3Auth for each notary.
 
+
 The four smart contracts involved are:
+
 1. **SecureVault.sol**: An ERC721 contract that stores metadata of documents and manages document visibility.
 2. **SecureVaultFactory.sol**: A factory contract for deploying SecureVault contracts and minting tokens.
 3. **SecureVaultReceiver.sol**: A contract that facilitates the reception of cross-chain messages containing document metadata.
 4. **SecureVaultSender.sol**: A contract that allows users to send verified documents from their SecureVault across chains.
+
 
 ## Problem Being Solved
 
@@ -34,6 +37,7 @@ The problem Securedocs aims to solve is the lack of a secure, decentralized way 
 
 
 # User Workflow
+
 1. **User Uploads a Document**: 
    - The user uploads a document via the frontend.
    - The document is sent to the backend where it is stored in the database.
@@ -279,6 +283,7 @@ The upload page allows users to upload their documents securely. This page handl
 **Functions:**
 
 **handleFileChange:** Handles the file input change event.
+
 **handleSubmit:** Handles the form submission to upload the document.
 
 # Installation and Execution
@@ -344,4 +349,6 @@ node server.js
 5. Start the backend server:
 
     ```bash
+
     npm run dev
+
